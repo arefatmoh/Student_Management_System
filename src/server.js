@@ -20,10 +20,10 @@ app.get('/api/health', (req, res) => {
 });
 
 // DB health check
-const { pool, initDb } = require('./db');
+const { getPool, initDb } = require('./db');
 app.get('/api/health/db', async (req, res) => {
   try {
-    await pool.query('SELECT 1');
+    await getPool().query('SELECT 1');
     res.json({ db: 'ok' });
   } catch (err) {
     res.status(500).json({ db: 'error', message: err.message });
