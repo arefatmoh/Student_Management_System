@@ -24,6 +24,7 @@ const { getPool, initDb } = require('./db');
 const studentsRouter = require('./routes/students');
 const feesRouter = require('./routes/fees');
 const attendanceRouter = require('./routes/attendance');
+const reportsRouter = require('./routes/reports');
 app.get('/api/health/db', async (req, res) => {
   try {
     await getPool().query('SELECT 1');
@@ -37,6 +38,7 @@ app.get('/api/health/db', async (req, res) => {
 app.use('/api/students', studentsRouter);
 app.use('/api/fees', feesRouter);
 app.use('/api/attendance', attendanceRouter);
+app.use('/api/reports', reportsRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
