@@ -14,13 +14,18 @@ async function loadStudents() {
     for (const s of data.data || []) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${s.STUDENT_ID}</td><td>${s.NAME}</td><td>${s.ROLL_NUMBER}</td><td>${s.CLASS}</td><td>${s.PARENT_CONTACT||''}</td><td>
-            <button data-id="${s.STUDENT_ID}" class="edit">Edit</button>
-            <button data-id="${s.STUDENT_ID}" class="del danger">Delete</button>
-            <button data-id="${s.STUDENT_ID}" class="addFee">Add Fee</button>
-            <button data-id="${s.STUDENT_ID}" class="viewFees secondary">View Fees</button>
-            <button data-id="${s.STUDENT_ID}" class="markAtt">Mark Attendance</button>
-            <button data-id="${s.STUDENT_ID}" class="viewAtt secondary">View Attendance</button>
-            <button data-id="${s.STUDENT_ID}" class="summary">Summary</button>
+            <div class="dropdown">
+                <button class="dropdown-toggle">Actions ▾</button>
+                <div class="dropdown-menu">
+                    <button data-id="${s.STUDENT_ID}" class="edit">Edit</button>
+                    <button data-id="${s.STUDENT_ID}" class="del">Delete</button>
+                    <button data-id="${s.STUDENT_ID}" class="addFee">Add Fee</button>
+                    <button data-id="${s.STUDENT_ID}" class="viewFees">View Fees</button>
+                    <button data-id="${s.STUDENT_ID}" class="markAtt">Mark Attendance</button>
+                    <button data-id="${s.STUDENT_ID}" class="viewAtt">View Attendance</button>
+                    <button data-id="${s.STUDENT_ID}" class="summary">Summary</button>
+                </div>
+            </div>
         </td>`;
         body.appendChild(tr);
     }
@@ -33,6 +38,19 @@ async function loadStudents() {
 		document.getElementById('class').value = s.CLASS;
 		document.getElementById('contact').value = s.PARENT_CONTACT || '';
 	}));
+    // Dropdown toggles
+    body.querySelectorAll('.dropdown-toggle').forEach(btn => btn.addEventListener('click', (e) => {
+        const menu = e.target.closest('.dropdown').querySelector('.dropdown-menu');
+        // close others
+        body.querySelectorAll('.dropdown-menu').forEach(m => { if (m !== menu) m.classList.remove('show'); });
+        menu.classList.toggle('show');
+    }));
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.dropdown')) {
+            body.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
+        }
+    }, { once: true });
+
     body.querySelectorAll('.del').forEach(btn => btn.addEventListener('click', async (e) => {
         const id = e.target.getAttribute('data-id');
         if (!confirm('Delete this student?')) return;
