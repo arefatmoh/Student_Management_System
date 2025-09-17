@@ -24,19 +24,24 @@ async function loadFees() {
 }
 
 document.getElementById('fee-form').addEventListener('submit', async (e) => {
-	e.preventDefault();
-	const btn = document.getElementById('saveFeeBtn'); btn.disabled = true; btn.textContent = 'Saving...';
-	const payload = {
-		STUDENT_ID: Number(document.getElementById('studentId').value),
-		FEE_AMOUNT: Number(document.getElementById('amount').value),
-		PAID_DATE: document.getElementById('paidDate').value || null,
-		STATUS: document.getElementById('status').value
-	};
-	await fetchJson('/api/fees', { method: 'POST', body: JSON.stringify(payload) });
-	currentPage = 1;
-	await loadFees();
-	window.showToast('Fee saved');
-	btn.disabled = false; btn.textContent = 'Save';
+    e.preventDefault();
+    const btn = document.getElementById('saveFeeBtn'); btn.disabled = true; btn.textContent = 'Saving...';
+    const payload = {
+        STUDENT_ID: Number(document.getElementById('studentId').value),
+        FEE_AMOUNT: Number(document.getElementById('amount').value),
+        PAID_DATE: document.getElementById('paidDate').value || null,
+        STATUS: document.getElementById('status').value
+    };
+    try {
+        await fetchJson('/api/fees', { method: 'POST', body: JSON.stringify(payload) });
+        currentPage = 1;
+        await loadFees();
+        window.showToast('Fee saved');
+    } catch (err) {
+        window.showToast('Save failed');
+    } finally {
+        btn.disabled = false; btn.textContent = 'Save';
+    }
 });
 
 document.getElementById('filterBtn').addEventListener('click', loadFees);

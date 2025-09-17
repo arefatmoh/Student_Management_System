@@ -24,22 +24,27 @@ async function loadAttendance() {
 }
 
 document.getElementById('attendance-form').addEventListener('submit', async (e) => {
-	e.preventDefault();
-	const btn = document.getElementById('saveAttBtn'); btn.disabled = true; btn.textContent = 'Saving...';
-	const payload = {
-		STUDENT_ID: Number(document.getElementById('studentId').value),
-		ATTENDANCE_DATE: document.getElementById('date').value,
-		STATUS: document.getElementById('status').value
-	};
-	const res = await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
-	if (!res.ok) {
-		const msg = await res.json();
-		alert(msg.message || 'Error');
-	}
-	currentPage = 1;
-	await loadAttendance();
-	window.showToast('Attendance saved');
-	btn.disabled = false; btn.textContent = 'Save';
+    e.preventDefault();
+    const btn = document.getElementById('saveAttBtn'); btn.disabled = true; btn.textContent = 'Saving...';
+    const payload = {
+        STUDENT_ID: Number(document.getElementById('studentId').value),
+        ATTENDANCE_DATE: document.getElementById('date').value,
+        STATUS: document.getElementById('status').value
+    };
+    try {
+        const res = await fetch('/api/attendance', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        if (!res.ok) {
+            const msg = await res.json();
+            throw new Error(msg.message || 'Error');
+        }
+        currentPage = 1;
+        await loadAttendance();
+        window.showToast('Attendance saved');
+    } catch (err) {
+        window.showToast(err.message || 'Save failed');
+    } finally {
+        btn.disabled = false; btn.textContent = 'Save';
+    }
 });
 
 document.getElementById('filterBtn').addEventListener('click', loadAttendance);
