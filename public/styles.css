@@ -38,5 +38,13 @@ button:disabled { background: #9ca3af; cursor: not-allowed; }
 .toast.show { opacity: 1; transform: translateY(0); }
 
 .pagination { margin: 8px 0; }
-.pagination button { margin-right: 6px; }
+.pagination { display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 12px; }
+.pagination .info { color: var(--muted); font-size: 13px; }
+.pagination button { margin-right: 0; }
+
+/* Button variants */
+button.secondary { background: #6b7280; }
+button.secondary:hover { background: #4b5563; }
+button.danger { background: #dc2626; }
+button.danger:hover { background: #b91c1c; }
 
