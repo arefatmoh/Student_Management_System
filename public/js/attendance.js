@@ -25,6 +25,7 @@ async function loadAttendance() {
 
 document.getElementById('attendance-form').addEventListener('submit', async (e) => {
 	e.preventDefault();
+	const btn = document.getElementById('saveAttBtn'); btn.disabled = true; btn.textContent = 'Saving...';
 	const payload = {
 		STUDENT_ID: Number(document.getElementById('studentId').value),
 		ATTENDANCE_DATE: document.getElementById('date').value,
@@ -35,7 +36,10 @@ document.getElementById('attendance-form').addEventListener('submit', async (e) 
 		const msg = await res.json();
 		alert(msg.message || 'Error');
 	}
-	loadAttendance();
+	currentPage = 1;
+	await loadAttendance();
+	window.showToast('Attendance saved');
+	btn.disabled = false; btn.textContent = 'Save';
 });
 
 document.getElementById('filterBtn').addEventListener('click', loadAttendance);

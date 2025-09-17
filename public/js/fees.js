@@ -25,6 +25,7 @@ async function loadFees() {
 
 document.getElementById('fee-form').addEventListener('submit', async (e) => {
 	e.preventDefault();
+	const btn = document.getElementById('saveFeeBtn'); btn.disabled = true; btn.textContent = 'Saving...';
 	const payload = {
 		STUDENT_ID: Number(document.getElementById('studentId').value),
 		FEE_AMOUNT: Number(document.getElementById('amount').value),
@@ -32,7 +33,10 @@ document.getElementById('fee-form').addEventListener('submit', async (e) => {
 		STATUS: document.getElementById('status').value
 	};
 	await fetchJson('/api/fees', { method: 'POST', body: JSON.stringify(payload) });
-	loadFees();
+	currentPage = 1;
+	await loadFees();
+	window.showToast('Fee saved');
+	btn.disabled = false; btn.textContent = 'Save';
 });
 
 document.getElementById('filterBtn').addEventListener('click', loadFees);

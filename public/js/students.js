@@ -40,6 +40,8 @@ async function loadStudents() {
 
 document.getElementById('student-form').addEventListener('submit', async (e) => {
 	e.preventDefault();
+	const saveBtn = document.getElementById('saveBtn');
+	saveBtn.disabled = true; saveBtn.textContent = 'Saving...';
 	const id = document.getElementById('studentId').value;
 	const payload = {
 		NAME: document.getElementById('name').value,
@@ -53,7 +55,10 @@ document.getElementById('student-form').addEventListener('submit', async (e) => 
 		await fetchJson('/api/students', { method: 'POST', body: JSON.stringify(payload) });
 	}
 	document.getElementById('student-form').reset();
-	loadStudents();
+	currentPage = 1; // reset to first page to show latest
+	await loadStudents();
+	window.showToast('Saved successfully');
+	saveBtn.disabled = false; saveBtn.textContent = 'Save';
 });
 
 document.getElementById('reset').addEventListener('click', () => {
