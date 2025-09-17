@@ -21,6 +21,8 @@ app.get('/api/health', (req, res) => {
 
 // DB health check
 const { getPool, initDb } = require('./db');
+const studentsRouter = require('./routes/students');
+const feesRouter = require('./routes/fees');
 app.get('/api/health/db', async (req, res) => {
   try {
     await getPool().query('SELECT 1');
@@ -30,13 +32,17 @@ app.get('/api/health/db', async (req, res) => {
   }
 });
 
+// Routes
+app.use('/api/students', studentsRouter);
+app.use('/api/fees', feesRouter);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   try {
     await initDb();
     console.log('Database initialized');
   } catch (e) {
-    console.error('DB init error:', e.message);
+    console.error('DB init error:', e);
   }
   console.log(`Server running on http://localhost:${PORT}`);
 });
