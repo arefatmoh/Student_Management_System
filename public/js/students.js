@@ -115,14 +115,22 @@ document.getElementById('student-form').addEventListener('submit', async (e) => 
         await loadStudents();
         window.showToast('Saved successfully');
     } catch (err) {
-        window.showToast('Save failed');
+        const msg = err && err.message ? err.message : 'Save failed';
+        window.showToast(msg);
+        if (msg.toLowerCase().includes('roll_number')) {
+            const rollEl = document.getElementById('roll');
+            rollEl.classList.add('input-error');
+            rollEl.focus();
+            setTimeout(() => rollEl.classList.remove('input-error'), 2000);
+        }
     } finally {
         saveBtn.disabled = false; saveBtn.textContent = 'Save';
     }
 });
 
-document.getElementById('reset').addEventListener('click', () => {
-	document.getElementById('student-form').reset();
+document.getElementById('clearBtn').addEventListener('click', () => {
+    const form = document.getElementById('student-form');
+    if (form && typeof form.reset === 'function') form.reset();
 });
 
 document.getElementById('searchBtn').addEventListener('click', loadStudents);

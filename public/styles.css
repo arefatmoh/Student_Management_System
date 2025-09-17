@@ -27,6 +27,7 @@ tr:last-child td { border-bottom: none; }
 input, select, button { padding: 10px 10px; margin: 6px 6px 6px 0; font-size: 14px; }
 input, select { border: 1px solid var(--border); border-radius: 8px; background: #fff; outline: none; transition: box-shadow .15s ease, border .15s ease; }
 input:focus, select:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,.15); }
+.input-error { border-color: #dc2626 !important; box-shadow: 0 0 0 3px rgba(220,38,38,.15) !important; }
 button { background: var(--primary); color: #fff; border: none; border-radius: 8px; cursor: pointer; padding: 10px 14px; font-weight: 600; letter-spacing: .2px; transition: background .15s ease, transform .02s ease; }
 button:hover { background: var(--primary-dark); }
 button:active { transform: translateY(1px); }
@@ -47,4 +48,16 @@ button.secondary { background: #6b7280; }
 button.secondary:hover { background: #4b5563; }
 button.danger { background: #dc2626; }
 button.danger:hover { background: #b91c1c; }
+
+/* Row actions */
+.actions { display: flex; align-items: center; gap: 8px; }
+.icon-btn { background: #eef2ff; color: #1e3a8a; border-radius: 8px; padding: 6px 8px; }
+.icon-btn:hover { background: #e0e7ff; }
+.menu { position: relative; }
+.menu-list { position: absolute; right: 0; top: 36px; background: #fff; border: 1px solid var(--border); border-radius: 10px; box-shadow: 0 8px 24px rgba(0,0,0,.12); min-width: 200px; display: none; padding: 8px; }
+.menu-list.show { display: block; }
+.menu-list .group { border-top: 1px solid var(--border); padding-top: 8px; margin-top: 8px; }
+.menu-list .group:first-child { border-top: none; padding-top: 0; margin-top: 0; }
+.menu-list button { width: 100%; text-align: left; background: #fff; color: var(--text); border: none; padding: 8px 10px; border-radius: 6px; }
+.menu-list button:hover { background: #f3f4f6; }
 
