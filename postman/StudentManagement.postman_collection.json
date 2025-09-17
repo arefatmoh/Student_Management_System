@@ -1,0 +1,52 @@
+{
+	"info": {
+		"name": "Student Management System",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Health",
+			"item": [
+				{ "name": "Health", "request": { "method": "GET", "url": "http://localhost:3000/api/health" } },
+				{ "name": "DB Health", "request": { "method": "GET", "url": "http://localhost:3000/api/health/db" } }
+			]
+		},
+		{
+			"name": "Students",
+			"item": [
+				{ "name": "Create", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode": "raw", "raw": "{\n  \"NAME\": \"Alice\",\n  \"ROLL_NUMBER\": \"R001\",\n  \"CLASS\": \"10A\",\n  \"PARENT_CONTACT\": \"0912345678\"\n}" }, "url": "http://localhost:3000/api/students" } },
+				{ "name": "List", "request": { "method": "GET", "url": "http://localhost:3000/api/students" } },
+				{ "name": "Get by Id", "request": { "method": "GET", "url": "http://localhost:3000/api/students/1" } },
+				{ "name": "Update", "request": { "method": "PUT", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode": "raw", "raw": "{\n  \"NAME\": \"Alice B\",\n  \"ROLL_NUMBER\": \"R001\",\n  \"CLASS\": \"10A\",\n  \"PARENT_CONTACT\": \"0912345678\"\n}" }, "url": "http://localhost:3000/api/students/1" } },
+				{ "name": "Delete", "request": { "method": "DELETE", "url": "http://localhost:3000/api/students/1" } }
+			]
+		},
+		{
+			"name": "Fees",
+			"item": [
+				{ "name": "Create", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode": "raw", "raw": "{\n  \"STUDENT_ID\": 1,\n  \"FEE_AMOUNT\": 1000,\n  \"PAID_DATE\": \"2025-09-16\",\n  \"STATUS\": \"Paid\"\n}" }, "url": "http://localhost:3000/api/fees" } },
+				{ "name": "List", "request": { "method": "GET", "url": "http://localhost:3000/api/fees?studentId=1" } },
+				{ "name": "Get by Id", "request": { "method": "GET", "url": "http://localhost:3000/api/fees/1" } },
+				{ "name": "Summary", "request": { "method": "GET", "url": "http://localhost:3000/api/fees/summary/1" } },
+				{ "name": "Update Status", "request": { "method": "PATCH", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode": "raw", "raw": "{\n  \"STATUS\": \"Pending\"\n}" }, "url": "http://localhost:3000/api/fees/1/status" } }
+			]
+		},
+		{
+			"name": "Attendance",
+			"item": [
+				{ "name": "Record", "request": { "method": "POST", "header": [{"key":"Content-Type","value":"application/json"}], "body": { "mode": "raw", "raw": "{\n  \"STUDENT_ID\": 1,\n  \"ATTENDANCE_DATE\": \"2025-09-17\",\n  \"STATUS\": \"Present\"\n}" }, "url": "http://localhost:3000/api/attendance" } },
+				{ "name": "List", "request": { "method": "GET", "url": "http://localhost:3000/api/attendance?studentId=1" } },
+				{ "name": "Summary", "request": { "method": "GET", "url": "http://localhost:3000/api/attendance/summary/1" } }
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{ "name": "Attendance", "request": { "method": "GET", "url": "http://localhost:3000/api/reports/attendance" } },
+				{ "name": "Fees", "request": { "method": "GET", "url": "http://localhost:3000/api/reports/fees" } },
+				{ "name": "Performance", "request": { "method": "GET", "url": "http://localhost:3000/api/reports/performance" } }
+			]
+		}
+	]
+}
+
