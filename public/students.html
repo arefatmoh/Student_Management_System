@@ -5,6 +5,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1" />
 	<title>Students</title>
 	<link rel="stylesheet" href="/styles.css" />
+<script src="/js/util.js"></script>
 </head>
 <body>
 	<header>
@@ -42,9 +43,14 @@
 				</thead>
 				<tbody id="students-body"></tbody>
 			</table>
+			<div class="pagination">
+				<button id="prevPage">Prev</button>
+				<span id="pageInfo"></span>
+				<button id="nextPage">Next</button>
+			</div>
 		</section>
 	</main>
 	<script src="/js/students.js"></script>
-</body>
+<script>setActiveNav();</script>
 </html>
 

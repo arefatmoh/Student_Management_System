@@ -3,11 +3,12 @@ async function fetchJson(url, options) {
 	return res.json();
 }
 
+let currentPage = 1; let total = 0; let limit = 10;
 async function loadStudents() {
 	const name = document.getElementById('searchName').value || '';
 	const roll = document.getElementById('searchRoll').value || '';
 	const cls = document.getElementById('searchClass').value || '';
-	const data = await fetchJson(`/api/students?name=${encodeURIComponent(name)}&roll=${encodeURIComponent(roll)}&class=${encodeURIComponent(cls)}`);
+	const data = await fetchJson(`/api/students?name=${encodeURIComponent(name)}&roll=${encodeURIComponent(roll)}&class=${encodeURIComponent(cls)}&page=${currentPage}&limit=${limit}`);
 	const body = document.getElementById('students-body');
 	body.innerHTML = '';
 	for (const s of data.data || []) {
@@ -32,6 +33,9 @@ async function loadStudents() {
 		await fetchJson(`/api/students/${id}`, { method: 'DELETE' });
 		loadStudents();
 	}));
+	// pagination info
+	total = data.total || 0; limit = data.limit || 10;
+	document.getElementById('pageInfo').innerText = `Page ${data.page || 1}`;
 }
 
 document.getElementById('student-form').addEventListener('submit', async (e) => {
@@ -57,6 +61,12 @@ document.getElementById('reset').addEventListener('click', () => {
 });
 
 document.getElementById('searchBtn').addEventListener('click', loadStudents);
+
+document.getElementById('prevPage').addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadStudents(); } });
+document.getElementById('nextPage').addEventListener('click', () => {
+	const maxPage = Math.max(1, Math.ceil(total / limit));
+	if (currentPage < maxPage) { currentPage++; loadStudents(); }
+});
 
 loadStudents();
 

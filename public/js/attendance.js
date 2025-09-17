@@ -3,12 +3,13 @@ async function fetchJson(url, options) {
 	return res.json();
 }
 
+let currentPage = 1; let total = 0; let limit = 10;
 async function loadAttendance() {
 	const studentId = document.getElementById('filterStudentId').value;
 	const status = document.getElementById('filterStatus').value;
 	const from = document.getElementById('filterFrom').value;
 	const to = document.getElementById('filterTo').value;
-	const qs = new URLSearchParams({ studentId, status, from, to });
+	const qs = new URLSearchParams({ studentId, status, from, to, page: currentPage, limit });
 	const data = await fetchJson(`/api/attendance?${qs.toString()}`);
 	const body = document.getElementById('attendance-body');
 	body.innerHTML = '';
@@ -17,6 +18,9 @@ async function loadAttendance() {
 		tr.innerHTML = `<td>${a.ATTENDANCE_ID}</td><td>${a.STUDENT_ID}</td><td>${a.ATTENDANCE_DATE}</td><td>${a.STATUS}</td>`;
 		body.appendChild(tr);
 	}
+	// pagination
+	total = data.total || 0; limit = data.limit || 10;
+	document.getElementById('pageInfo').innerText = `Page ${data.page || 1}`;
 }
 
 document.getElementById('attendance-form').addEventListener('submit', async (e) => {
@@ -35,6 +39,12 @@ document.getElementById('attendance-form').addEventListener('submit', async (e) 
 });
 
 document.getElementById('filterBtn').addEventListener('click', loadAttendance);
+
+document.getElementById('prevPage').addEventListener('click', () => { if (currentPage > 1) { currentPage--; loadAttendance(); } });
+document.getElementById('nextPage').addEventListener('click', () => {
+	const maxPage = Math.max(1, Math.ceil(total / limit));
+	if (currentPage < maxPage) { currentPage++; loadAttendance(); }
+});
 
 loadAttendance();
 
