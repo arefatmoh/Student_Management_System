@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Students</title>
+	<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+	<header>
+		<h1>Students</h1>
+		<nav>
+			<a href="/index.html">Dashboard</a>
+			<a href="/students.html">Students</a>
+			<a href="/fees.html">Fees</a>
+			<a href="/attendance.html">Attendance</a>
+			<a href="/reports.html">Reports</a>
+		</nav>
+	</header>
+	<main>
+		<section>
+			<h3>Add / Edit Student</h3>
+			<form id="student-form">
+				<input type="hidden" id="studentId" />
+				<input placeholder="Name" id="name" required />
+				<input placeholder="Roll Number" id="roll" required />
+				<input placeholder="Class" id="class" required />
+				<input placeholder="Parent Contact" id="contact" />
+				<button type="submit">Save</button>
+				<button type="button" id="reset">Reset</button>
+			</form>
+		</section>
+		<section>
+			<h3>Students</h3>
+			<input placeholder="Search name" id="searchName" />
+			<input placeholder="Search roll" id="searchRoll" />
+			<input placeholder="Class" id="searchClass" />
+			<button id="searchBtn">Search</button>
+			<table>
+				<thead>
+					<tr><th>ID</th><th>Name</th><th>Roll</th><th>Class</th><th>Contact</th><th>Actions</th></tr>
+				</thead>
+				<tbody id="students-body"></tbody>
+			</table>
+		</section>
+	</main>
+	<script src="/js/students.js"></script>
+</body>
+</html>
+

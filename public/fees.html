@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Fees</title>
+	<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+	<header>
+		<h1>Fees</h1>
+		<nav>
+			<a href="/index.html">Dashboard</a>
+			<a href="/students.html">Students</a>
+			<a href="/fees.html">Fees</a>
+			<a href="/attendance.html">Attendance</a>
+			<a href="/reports.html">Reports</a>
+		</nav>
+	</header>
+	<main>
+		<section>
+			<h3>Record Fee Payment</h3>
+			<form id="fee-form">
+				<input placeholder="Student ID" id="studentId" required />
+				<input placeholder="Amount" id="amount" type="number" min="0" required />
+				<input placeholder="Paid Date (YYYY-MM-DD)" id="paidDate" />
+				<select id="status">
+					<option value="Paid">Paid</option>
+					<option value="Pending">Pending</option>
+				</select>
+				<button type="submit">Save</button>
+			</form>
+		</section>
+		<section>
+			<h3>Fees</h3>
+			<input placeholder="Student ID" id="filterStudentId" />
+			<select id="filterStatus">
+				<option value="">Any Status</option>
+				<option value="Paid">Paid</option>
+				<option value="Pending">Pending</option>
+			</select>
+			<input placeholder="From (YYYY-MM-DD)" id="filterFrom" />
+			<input placeholder="To (YYYY-MM-DD)" id="filterTo" />
+			<button id="filterBtn">Filter</button>
+			<table>
+				<thead>
+					<tr><th>ID</th><th>Student</th><th>Amount</th><th>Paid Date</th><th>Status</th></tr>
+				</thead>
+				<tbody id="fees-body"></tbody>
+			</table>
+		</section>
+	</main>
+	<script src="/js/fees.js"></script>
+</body>
+</html>
+

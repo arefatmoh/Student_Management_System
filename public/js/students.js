@@ -1,0 +1,63 @@
+async function fetchJson(url, options) {
+	const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+	return res.json();
+}
+
+async function loadStudents() {
+	const name = document.getElementById('searchName').value || '';
+	const roll = document.getElementById('searchRoll').value || '';
+	const cls = document.getElementById('searchClass').value || '';
+	const data = await fetchJson(`/api/students?name=${encodeURIComponent(name)}&roll=${encodeURIComponent(roll)}&class=${encodeURIComponent(cls)}`);
+	const body = document.getElementById('students-body');
+	body.innerHTML = '';
+	for (const s of data.data || []) {
+		const tr = document.createElement('tr');
+		tr.innerHTML = `<td>${s.STUDENT_ID}</td><td>${s.NAME}</td><td>${s.ROLL_NUMBER}</td><td>${s.CLASS}</td><td>${s.PARENT_CONTACT||''}</td><td>
+			<button data-id="${s.STUDENT_ID}" class="edit">Edit</button>
+			<button data-id="${s.STUDENT_ID}" class="del">Delete</button>
+		</td>`;
+		body.appendChild(tr);
+	}
+	body.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', async (e) => {
+		const id = e.target.getAttribute('data-id');
+		const s = await fetchJson(`/api/students/${id}`);
+		document.getElementById('studentId').value = s.STUDENT_ID;
+		document.getElementById('name').value = s.NAME;
+		document.getElementById('roll').value = s.ROLL_NUMBER;
+		document.getElementById('class').value = s.CLASS;
+		document.getElementById('contact').value = s.PARENT_CONTACT || '';
+	}));
+	body.querySelectorAll('.del').forEach(btn => btn.addEventListener('click', async (e) => {
+		const id = e.target.getAttribute('data-id');
+		await fetchJson(`/api/students/${id}`, { method: 'DELETE' });
+		loadStudents();
+	}));
+}
+
+document.getElementById('student-form').addEventListener('submit', async (e) => {
+	e.preventDefault();
+	const id = document.getElementById('studentId').value;
+	const payload = {
+		NAME: document.getElementById('name').value,
+		ROLL_NUMBER: document.getElementById('roll').value,
+		CLASS: document.getElementById('class').value,
+		PARENT_CONTACT: document.getElementById('contact').value || null
+	};
+	if (id) {
+		await fetchJson(`/api/students/${id}`, { method: 'PUT', body: JSON.stringify(payload) });
+	} else {
+		await fetchJson('/api/students', { method: 'POST', body: JSON.stringify(payload) });
+	}
+	document.getElementById('student-form').reset();
+	loadStudents();
+});
+
+document.getElementById('reset').addEventListener('click', () => {
+	document.getElementById('student-form').reset();
+});
+
+document.getElementById('searchBtn').addEventListener('click', loadStudents);
+
+loadStudents();
+
+

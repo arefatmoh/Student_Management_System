@@ -40,6 +40,10 @@ app.use('/api/fees', feesRouter);
 app.use('/api/attendance', attendanceRouter);
 app.use('/api/reports', reportsRouter);
 
+// Static frontend
+const path = require('path');
+app.use(express.static(path.join(__dirname, '..', 'public')));
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, async () => {
   try {
