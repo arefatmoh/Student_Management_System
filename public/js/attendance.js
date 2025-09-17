@@ -1,7 +1,4 @@
-async function fetchJson(url, options) {
-	const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
-	return res.json();
-}
+async function fetchJson(url, options) { return window.apiFetch(url, options); }
 
 let currentPage = 1; let total = 0; let limit = 10;
 async function loadAttendance() {

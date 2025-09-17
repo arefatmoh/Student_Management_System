@@ -18,4 +18,25 @@ window.setActiveNav = function() {
     });
 };
 
+// Simple API wrapper with error handling and optional debug
+window.apiFetch = async function(url, options) {
+    const debug = false; // set true temporarily for debugging
+    try {
+        if (debug) console.log('[apiFetch] request', url, options);
+        const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
+        const text = await res.text();
+        let data;
+        try { data = text ? JSON.parse(text) : null; } catch { data = text; }
+        if (!res.ok) {
+            const message = (data && data.message) ? data.message : `HTTP ${res.status}`;
+            throw new Error(message);
+        }
+        if (debug) console.log('[apiFetch] response', data);
+        return data;
+    } catch (err) {
+        if (debug) console.error('[apiFetch] error', err);
+        throw err;
+    }
+};
+
 

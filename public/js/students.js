@@ -1,7 +1,4 @@
-async function fetchJson(url, options) {
-	const res = await fetch(url, { headers: { 'Content-Type': 'application/json' }, ...options });
-	return res.json();
-}
+async function fetchJson(url, options) { return window.apiFetch(url, options); }
 
 let currentPage = 1; let total = 0; let limit = 10;
 async function loadStudents() {
@@ -14,21 +11,40 @@ async function loadStudents() {
     for (const s of data.data || []) {
         const tr = document.createElement('tr');
         tr.innerHTML = `<td>${s.STUDENT_ID}</td><td>${s.NAME}</td><td>${s.ROLL_NUMBER}</td><td>${s.CLASS}</td><td>${s.PARENT_CONTACT||''}</td><td>
-            <div class="dropdown">
-                <button class="dropdown-toggle">Actions ▾</button>
-                <div class="dropdown-menu">
-                    <button data-id="${s.STUDENT_ID}" class="edit">Edit</button>
-                    <button data-id="${s.STUDENT_ID}" class="del">Delete</button>
-                    <button data-id="${s.STUDENT_ID}" class="addFee">Add Fee</button>
-                    <button data-id="${s.STUDENT_ID}" class="viewFees">View Fees</button>
-                    <button data-id="${s.STUDENT_ID}" class="markAtt">Mark Attendance</button>
-                    <button data-id="${s.STUDENT_ID}" class="viewAtt">View Attendance</button>
-                    <button data-id="${s.STUDENT_ID}" class="summary">Summary</button>
+            <div class="actions">
+                <button data-id="${s.STUDENT_ID}" class="icon-btn edit" title="Edit">✏️</button>
+                <button data-id="${s.STUDENT_ID}" class="icon-btn del danger" title="Delete">🗑️</button>
+                <div class="menu">
+                    <button class="icon-btn menu-toggle" title="More">⋯</button>
+                    <div class="menu-list">
+                        <div class="group">
+                            <button data-id="${s.STUDENT_ID}" class="addFee">Add Fee</button>
+                            <button data-id="${s.STUDENT_ID}" class="viewFees">View Fees</button>
+                        </div>
+                        <div class="group">
+                            <button data-id="${s.STUDENT_ID}" class="markAtt">Mark Attendance</button>
+                            <button data-id="${s.STUDENT_ID}" class="viewAtt">View Attendance</button>
+                        </div>
+                        <div class="group">
+                            <button data-id="${s.STUDENT_ID}" class="summary">Summary</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </td>`;
         body.appendChild(tr);
     }
+    // Menu interactions
+    body.querySelectorAll('.menu-toggle').forEach(btn => btn.addEventListener('click', (e) => {
+        const list = e.target.closest('.menu').querySelector('.menu-list');
+        body.querySelectorAll('.menu-list').forEach(m => { if (m !== list) m.classList.remove('show'); });
+        list.classList.toggle('show');
+    }));
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.menu')) {
+            body.querySelectorAll('.menu-list').forEach(m => m.classList.remove('show'));
+        }
+    }, { once: true });
 	body.querySelectorAll('.edit').forEach(btn => btn.addEventListener('click', async (e) => {
 		const id = e.target.getAttribute('data-id');
 		const s = await fetchJson(`/api/students/${id}`);
@@ -38,19 +54,6 @@ async function loadStudents() {
 		document.getElementById('class').value = s.CLASS;
 		document.getElementById('contact').value = s.PARENT_CONTACT || '';
 	}));
-    // Dropdown toggles
-    body.querySelectorAll('.dropdown-toggle').forEach(btn => btn.addEventListener('click', (e) => {
-        const menu = e.target.closest('.dropdown').querySelector('.dropdown-menu');
-        // close others
-        body.querySelectorAll('.dropdown-menu').forEach(m => { if (m !== menu) m.classList.remove('show'); });
-        menu.classList.toggle('show');
-    }));
-    document.addEventListener('click', (e) => {
-        if (!e.target.closest('.dropdown')) {
-            body.querySelectorAll('.dropdown-menu').forEach(m => m.classList.remove('show'));
-        }
-    }, { once: true });
-
     body.querySelectorAll('.del').forEach(btn => btn.addEventListener('click', async (e) => {
         const id = e.target.getAttribute('data-id');
         if (!confirm('Delete this student?')) return;
