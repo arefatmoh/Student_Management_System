@@ -4,6 +4,8 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+const session = require('express-session');
+const authRouter = require('./routes/auth');
 
 // Basic CORS for local dev (optional simple approach)
 app.use((req, res, next) => {
@@ -13,6 +15,14 @@ app.use((req, res, next) => {
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
+
+// Sessions
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'dev_secret',
+  resave: false,
+  saveUninitialized: false,
+  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 },
+}));
 
 // Health route
 app.get('/api/health', (req, res) => {
@@ -35,6 +45,7 @@ app.get('/api/health/db', async (req, res) => {
 });
 
 // Routes
+app.use('/api/auth', authRouter);
 app.use('/api/students', studentsRouter);
 app.use('/api/fees', feesRouter);
 app.use('/api/attendance', attendanceRouter);

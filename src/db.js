@@ -67,9 +67,19 @@ async function initDb() {
     ) ENGINE=InnoDB;
   `;
 
+  const createUsers = `
+    CREATE TABLE IF NOT EXISTS Users (
+      USER_ID INT AUTO_INCREMENT PRIMARY KEY,
+      USERNAME VARCHAR(30) NOT NULL UNIQUE,
+      PASSWORD_HASH VARCHAR(100) NOT NULL,
+      ROLE ENUM('admin','teacher') NOT NULL DEFAULT 'admin'
+    ) ENGINE=InnoDB;
+  `;
+
   await pool.query(createStudents);
   await pool.query(createFees);
   await pool.query(createAttendance);
+  await pool.query(createUsers);
 }
 function getPool() {
   if (!pool) {
