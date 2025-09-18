@@ -28,6 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', logout);
         nav.appendChild(btn);
     }
+    // Show Admin link for admins
+    apiFetch('/api/auth/me').then(me => {
+        if (me.role === 'admin') {
+            const link = document.getElementById('adminLink');
+            if (link) link.classList.remove('hidden');
+        }
+    }).catch(()=>{});
 });
 
 
