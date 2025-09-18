@@ -76,10 +76,42 @@ async function initDb() {
     ) ENGINE=InnoDB;
   `;
 
+  const createClasses = `
+    CREATE TABLE IF NOT EXISTS Classes (
+      CLASS_ID INT AUTO_INCREMENT PRIMARY KEY,
+      NAME VARCHAR(50) NOT NULL UNIQUE
+    ) ENGINE=InnoDB;
+  `;
+
+  const createSections = `
+    CREATE TABLE IF NOT EXISTS Sections (
+      SECTION_ID INT AUTO_INCREMENT PRIMARY KEY,
+      CLASS_ID INT NOT NULL,
+      NAME VARCHAR(50) NOT NULL,
+      UNIQUE KEY uniq_class_section (CLASS_ID, NAME),
+      CONSTRAINT fk_sections_class FOREIGN KEY (CLASS_ID)
+        REFERENCES Classes(CLASS_ID) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+  `;
+
+  const createSubjects = `
+    CREATE TABLE IF NOT EXISTS Subjects (
+      SUBJECT_ID INT AUTO_INCREMENT PRIMARY KEY,
+      CLASS_ID INT NOT NULL,
+      NAME VARCHAR(50) NOT NULL,
+      UNIQUE KEY uniq_class_subject (CLASS_ID, NAME),
+      CONSTRAINT fk_subjects_class FOREIGN KEY (CLASS_ID)
+        REFERENCES Classes(CLASS_ID) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+  `;
+
   await pool.query(createStudents);
   await pool.query(createFees);
   await pool.query(createAttendance);
   await pool.query(createUsers);
+  await pool.query(createClasses);
+  await pool.query(createSections);
+  await pool.query(createSubjects);
 }
 function getPool() {
   if (!pool) {

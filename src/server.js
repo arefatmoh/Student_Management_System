@@ -36,6 +36,7 @@ const feesRouter = require('./routes/fees');
 const attendanceRouter = require('./routes/attendance');
 const reportsRouter = require('./routes/reports');
 const usersRouter = require('./routes/users');
+const classesRouter = require('./routes/classes');
 const { requireAuth } = require('./middlewares/auth');
 app.get('/api/health/db', async (req, res) => {
   try {
@@ -53,6 +54,7 @@ app.use('/api/fees', requireAuth, feesRouter);
 app.use('/api/attendance', requireAuth, attendanceRouter);
 app.use('/api/reports', requireAuth, reportsRouter);
 app.use('/api/users', requireAuth, usersRouter);
+app.use('/api/classes', requireAuth, classesRouter);
 
 // Static frontend
 const path = require('path');

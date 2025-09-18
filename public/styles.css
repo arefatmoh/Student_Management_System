@@ -61,3 +61,6 @@ button.danger:hover { background: #b91c1c; }
 .menu-list button { width: 100%; text-align: left; background: #fff; color: var(--text); border: none; padding: 8px 10px; border-radius: 6px; }
 .menu-list button:hover { background: #f3f4f6; }
 
+/* Utilities */
+.hidden { display: none !important; }
+
