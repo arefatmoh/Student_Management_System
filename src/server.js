@@ -35,6 +35,7 @@ const studentsRouter = require('./routes/students');
 const feesRouter = require('./routes/fees');
 const attendanceRouter = require('./routes/attendance');
 const reportsRouter = require('./routes/reports');
+const { requireAuth } = require('./middlewares/auth');
 app.get('/api/health/db', async (req, res) => {
   try {
     await getPool().query('SELECT 1');
@@ -46,10 +47,10 @@ app.get('/api/health/db', async (req, res) => {
 
 // Routes
 app.use('/api/auth', authRouter);
-app.use('/api/students', studentsRouter);
-app.use('/api/fees', feesRouter);
-app.use('/api/attendance', attendanceRouter);
-app.use('/api/reports', reportsRouter);
+app.use('/api/students', requireAuth, studentsRouter);
+app.use('/api/fees', requireAuth, feesRouter);
+app.use('/api/attendance', requireAuth, attendanceRouter);
+app.use('/api/reports', requireAuth, reportsRouter);
 
 // Static frontend
 const path = require('path');
