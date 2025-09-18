@@ -105,6 +105,20 @@ async function initDb() {
     ) ENGINE=InnoDB;
   `;
 
+  const createMarks = `
+    CREATE TABLE IF NOT EXISTS Marks (
+      MARK_ID INT AUTO_INCREMENT PRIMARY KEY,
+      STUDENT_ID INT NOT NULL,
+      SUBJECT_ID INT NOT NULL,
+      TERM VARCHAR(20) NOT NULL,
+      SCORE DECIMAL(5,2) NOT NULL,
+      MAX_SCORE DECIMAL(5,2) NOT NULL DEFAULT 100,
+      UNIQUE KEY uniq_mark (STUDENT_ID, SUBJECT_ID, TERM),
+      CONSTRAINT fk_marks_student FOREIGN KEY (STUDENT_ID) REFERENCES Students(STUDENT_ID) ON DELETE CASCADE,
+      CONSTRAINT fk_marks_subject FOREIGN KEY (SUBJECT_ID) REFERENCES Subjects(SUBJECT_ID) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+  `;
+
   await pool.query(createStudents);
   await pool.query(createFees);
   await pool.query(createAttendance);
@@ -112,6 +126,7 @@ async function initDb() {
   await pool.query(createClasses);
   await pool.query(createSections);
   await pool.query(createSubjects);
+  await pool.query(createMarks);
 }
 function getPool() {
   if (!pool) {

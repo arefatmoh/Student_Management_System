@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Marks</title>
+	<link rel="stylesheet" href="/styles.css" />
+<script src="/js/util.js"></script>
+<script src="/js/auth-guard.js"></script>
+</head>
+<body>
+	<header>
+		<h1>Marks</h1>
+		<nav>
+			<a href="/index.html">Dashboard</a>
+			<a href="/students.html">Students</a>
+			<a href="/fees.html">Fees</a>
+			<a href="/attendance.html">Attendance</a>
+			<a href="/reports.html">Reports</a>
+			<a href="/classes.html">Classes</a>
+		</nav>
+	</header>
+	<main>
+		<section class="card" style="max-width:620px;">
+			<h3>Record Mark</h3>
+			<form id="mark-form">
+				<input id="studentId" placeholder="Student ID" required />
+				<input id="subjectId" placeholder="Subject ID" required />
+				<input id="term" placeholder="Term (e.g., T1)" required />
+				<input id="score" placeholder="Score" type="number" min="0" step="0.01" required />
+				<input id="maxScore" placeholder="Max (default 100)" type="number" min="1" step="0.01" />
+				<button type="submit" id="saveMarkBtn">Save</button>
+			</form>
+			<p class="muted">Tip: Use Subjects list to find IDs.</p>
+		</section>
+		<section>
+			<h3>Marks by Student</h3>
+			<input id="queryStudentId" placeholder="Student ID" />
+			<input id="queryTerm" placeholder="Term" />
+			<button id="loadByStudent" class="secondary">Load</button>
+			<table>
+				<thead><tr><th>Subject</th><th>Term</th><th>Score</th><th>Max</th></tr></thead>
+				<tbody id="student-marks"></tbody>
+			</table>
+		</section>
+	</main>
+	<script src="/js/marks.js"></script>
+	<script>ensureAuth();</script>
+</body>
+</html>
+

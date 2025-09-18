@@ -63,4 +63,7 @@ button.danger:hover { background: #b91c1c; }
 
 /* Utilities */
 .hidden { display: none !important; }
+.tag { display: inline-block; background: #eef2ff; color: #1e3a8a; padding: 4px 8px; border-radius: 999px; margin: 2px; font-size: 12px; }
+.tag .x { color: #1e3a8a; margin-left: 6px; text-decoration: none; }
+.muted { color: var(--muted); font-size: 12px; }
 
