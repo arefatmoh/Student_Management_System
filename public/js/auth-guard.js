@@ -1,6 +1,9 @@
-async function ensureAuth() {
+async function ensureAuth(requiredRole) {
     try {
-        await apiFetch('/api/auth/me');
+        const me = await apiFetch('/api/auth/me');
+        if (requiredRole && me.role !== requiredRole) {
+            location.href = '/index.html';
+        }
     } catch {
         location.href = '/login.html';
     }

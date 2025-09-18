@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+	<title>Admin - Users</title>
+	<link rel="stylesheet" href="/styles.css" />
+<script src="/js/util.js"></script>
+<script src="/js/auth-guard.js"></script>
+</head>
+<body>
+	<header>
+		<h1>Admin - Users</h1>
+		<nav>
+			<a href="/index.html">Dashboard</a>
+			<a href="/students.html">Students</a>
+			<a href="/fees.html">Fees</a>
+			<a href="/attendance.html">Attendance</a>
+			<a href="/reports.html">Reports</a>
+		</nav>
+	</header>
+	<main>
+		<section class="card" style="max-width:520px;">
+			<h3>Create User</h3>
+			<form id="user-form">
+				<input placeholder="Username" id="username" required />
+				<input placeholder="Password" id="password" type="password" required />
+				<select id="role">
+					<option value="admin">admin</option>
+					<option value="teacher">teacher</option>
+				</select>
+				<button type="submit">Create</button>
+			</form>
+		</section>
+		<section>
+			<h3>Users</h3>
+			<table>
+				<thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
+				<tbody id="users-body"></tbody>
+			</table>
+		</section>
+	</main>
+	<script>
+		ensureAuth();
+		async function loadUsers(){
+			const list = await apiFetch('/api/users');
+			const body = document.getElementById('users-body');
+			body.innerHTML = '';
+			for(const u of list){
+				const tr = document.createElement('tr');
+				tr.innerHTML = `<td>${u.USER_ID}</td><td>${u.USERNAME}</td><td>${u.ROLE}</td><td><button data-id="${u.USER_ID}" class="del danger">Delete</button></td>`;
+				body.appendChild(tr);
+			}
+			body.querySelectorAll('.del').forEach(btn=>btn.addEventListener('click', async (e)=>{
+				const id = e.target.getAttribute('data-id');
+				if(!confirm('Delete this user?')) return;
+				await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
+				window.showToast('Deleted');
+				loadUsers();
+			}));
+		}
+		document.getElementById('user-form').addEventListener('submit', async (e)=>{
+			e.preventDefault();
+			const payload = { username: username.value, password: password.value, role: role.value };
+			try{
+				await apiFetch('/api/users', { method: 'POST', body: JSON.stringify(payload) });
+				window.showToast('User created');
+				username.value=''; password.value='';
+				loadUsers();
+			}catch(err){ window.showToast(err.message || 'Error'); }
+		});
+		loadUsers();
+	</script>
+</body>
+</html>
+
