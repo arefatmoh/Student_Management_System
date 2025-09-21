@@ -159,6 +159,49 @@ async function initDb() {
   await pool.query(createMarks);
   await pool.query(createInvoices);
   await pool.query(createPayments);
+
+  // Seed initial data
+  try {
+    const bcrypt = require('bcrypt');
+    
+    // Check if admin user exists
+    const [adminUsers] = await pool.query('SELECT COUNT(*) as count FROM Users WHERE USERNAME = ?', ['admin']);
+    if (adminUsers[0].count === 0) {
+      const adminHash = await bcrypt.hash('admin123', 10);
+      await pool.query('INSERT INTO Users (USERNAME, PASSWORD_HASH, ROLE) VALUES (?, ?, ?)', ['admin', adminHash, 'admin']);
+      console.log('Admin user created: admin/admin123');
+    }
+    
+    // Check if teacher user exists
+    const [teacherUsers] = await pool.query('SELECT COUNT(*) as count FROM Users WHERE USERNAME = ?', ['teacher']);
+    if (teacherUsers[0].count === 0) {
+      const teacherHash = await bcrypt.hash('teacher123', 10);
+      await pool.query('INSERT INTO Users (USERNAME, PASSWORD_HASH, ROLE) VALUES (?, ?, ?)', ['teacher', teacherHash, 'teacher']);
+      console.log('Teacher user created: teacher/teacher123');
+    }
+    
+    // Seed sample classes and subjects
+    const [classCount] = await pool.query('SELECT COUNT(*) as count FROM Classes');
+    if (classCount[0].count === 0) {
+      await pool.query('INSERT INTO Classes (NAME) VALUES (?)', ['Grade 1']);
+      await pool.query('INSERT INTO Classes (NAME) VALUES (?)', ['Grade 2']);
+      await pool.query('INSERT INTO Classes (NAME) VALUES (?)', ['Grade 3']);
+      console.log('Sample classes created');
+    }
+    
+    const [subjectCount] = await pool.query('SELECT COUNT(*) as count FROM Subjects');
+    if (subjectCount[0].count === 0) {
+      const [classes] = await pool.query('SELECT CLASS_ID FROM Classes LIMIT 3');
+      for (const cls of classes) {
+        await pool.query('INSERT INTO Subjects (CLASS_ID, NAME) VALUES (?, ?)', [cls.CLASS_ID, 'Mathematics']);
+        await pool.query('INSERT INTO Subjects (CLASS_ID, NAME) VALUES (?, ?)', [cls.CLASS_ID, 'English']);
+        await pool.query('INSERT INTO Subjects (CLASS_ID, NAME) VALUES (?, ?)', [cls.CLASS_ID, 'Science']);
+      }
+      console.log('Sample subjects created');
+    }
+  } catch (error) {
+    console.log('Note: Some seed data may already exist:', error.message);
+  }
 }
 function getPool() {
   if (!pool) {

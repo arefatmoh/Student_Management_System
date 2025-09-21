@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulk Attendance - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .calendar-container {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .calendar-day {
+            background: white;
+            padding: 8px;
+            min-height: 60px;
+            position: relative;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        .calendar-day:hover {
+            background: #f3f4f6;
+        }
+        .calendar-day.other-month {
+            background: #f9fafb;
+            color: #9ca3af;
+        }
+        .calendar-day.today {
+            background: #dbeafe;
+            font-weight: bold;
+        }
+        .calendar-day.has-attendance {
+            background: #dcfce7;
+        }
+        .calendar-day-header {
+            background: #f3f4f6;
+            font-weight: 600;
+            text-align: center;
+            padding: 8px;
+        }
+        .attendance-indicator {
+            position: absolute;
+            bottom: 2px;
+            right: 2px;
+            font-size: 10px;
+            padding: 2px 4px;
+            border-radius: 3px;
+        }
+        .present-indicator {
+            background: #22c55e;
+            color: white;
+        }
+        .absent-indicator {
+            background: #ef4444;
+            color: white;
+        }
+        .bulk-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .student-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+        }
+        .student-item {
+            display: flex;
+            align-items: center;
+            padding: 10px;
+            border-bottom: 1px solid #f3f4f6;
+        }
+        .student-item:last-child {
+            border-bottom: none;
+        }
+        .student-info {
+            flex: 1;
+        }
+        .student-actions {
+            display: flex;
+            gap: 5px;
+        }
+        .attendance-toggle {
+            padding: 4px 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            background: white;
+            cursor: pointer;
+            font-size: 12px;
+            min-width: 60px;
+        }
+        .attendance-toggle.present {
+            background: #22c55e;
+            color: white;
+            border-color: #22c55e;
+        }
+        .attendance-toggle.absent {
+            background: #ef4444;
+            color: white;
+            border-color: #ef4444;
+        }
+        .month-navigation {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        .calendar-view {
+            margin-top: 20px;
+        }
+        .view-tabs {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            border: 1px solid #d1d5db;
+            background: white;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            margin-right: 2px;
+        }
+        .tab-button.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Bulk Attendance Management</h1>
+        <nav>
+            <a href="/index.html">Dashboard</a>
+            <a href="/students.html">Students</a>
+            <a href="/fees.html">Fees</a>
+            <a href="/attendance.html">Attendance</a>
+            <a href="/reports.html">Reports</a>
+            <a href="/classes.html">Classes</a>
+            <a href="/marks.html">Marks</a>
+            <a href="/invoices.html">Invoices</a>
+            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
+            <button onclick="logout()" class="btn btn-secondary">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- View Tabs -->
+        <div class="view-tabs">
+            <button class="tab-button active" onclick="switchTab('bulk')">Bulk Marking</button>
+            <button class="tab-button" onclick="switchTab('calendar')">Calendar View</button>
+        </div>
+
+        <!-- Bulk Marking Tab -->
+        <div id="bulk-tab" class="tab-content active">
+            <section class="card">
+                <h2>Bulk Attendance Marking</h2>
+                
+                <!-- Date and Class Selection -->
+                <div class="form-group">
+                    <label for="bulk-date">Date:</label>
+                    <input type="date" id="bulk-date" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bulk-class-filter">Class Filter:</label>
+                    <select id="bulk-class-filter">
+                        <option value="all">All Classes</option>
+                    </select>
+                </div>
+
+                <!-- Bulk Actions -->
+                <div class="bulk-actions">
+                    <button class="btn btn-success" onclick="markAllPresent()">Mark All Present</button>
+                    <button class="btn btn-danger" onclick="markAllAbsent()">Mark All Absent</button>
+                    <button class="btn btn-primary" onclick="loadStudentsForBulk()">Load Students</button>
+                    <button class="btn btn-secondary" onclick="saveBulkAttendance()">Save Attendance</button>
+                </div>
+
+                <!-- Student List -->
+                <div class="student-list" id="student-list">
+                    <p class="text-center">Click "Load Students" to begin</p>
+                </div>
+            </section>
+        </div>
+
+        <!-- Calendar View Tab -->
+        <div id="calendar-tab" class="tab-content">
+            <section class="card">
+                <h2>Attendance Calendar</h2>
+                
+                <!-- Month Navigation -->
+                <div class="month-navigation">
+                    <button class="btn btn-secondary" onclick="previousMonth()">← Previous</button>
+                    <h3 id="current-month">Loading...</h3>
+                    <button class="btn btn-secondary" onclick="nextMonth()">Next →</button>
+                </div>
+
+                <!-- Class Filter for Calendar -->
+                <div class="form-group">
+                    <label for="calendar-class-filter">Class Filter:</label>
+                    <select id="calendar-class-filter">
+                        <option value="all">All Classes</option>
+                    </select>
+                </div>
+
+                <!-- Calendar -->
+                <div class="calendar-container" id="calendar-container">
+                    <!-- Calendar will be generated here -->
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Attendance Details Modal -->
+    <div id="attendance-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeAttendanceDetailsModal()">&times;</span>
+            <h2>Attendance Details</h2>
+            <div id="attendance-details-content"></div>
+        </div>
+    </div>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/attendance-bulk.js"></script>
+</body>
+</html>

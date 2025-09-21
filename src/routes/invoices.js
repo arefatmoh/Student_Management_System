@@ -1,11 +1,11 @@
 const express = require('express');
 const { getPool } = require('../db');
-const { ensureAuth } = require('../middlewares/auth');
+const { requireAuth } = require('../middlewares/auth');
 
 const router = express.Router();
 
 // Apply auth middleware to all routes
-router.use(ensureAuth);
+router.use(requireAuth);
 
 // Generate unique invoice number
 function generateInvoiceNumber() {

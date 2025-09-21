@@ -138,6 +138,38 @@ button.warning:hover { background: #d97706; }
   justify-content: center;
 }
 
+/* Feature grid */
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 20px;
+}
+.feature-card {
+  text-align: center;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.feature-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+.feature-card h3 {
+  margin: 0 0 10px 0;
+  color: var(--primary);
+  font-size: 18px;
+}
+.feature-card p {
+  margin: 0 0 15px 0;
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.4;
+}
+.feature-card .btn {
+  width: 100%;
+  margin: 0;
+}
+
 /* Row actions */
 .actions { display: flex; align-items: center; gap: 8px; }
 .icon-btn { background: #eef2ff; color: #1e3a8a; border-radius: 8px; padding: 6px 8px; }
