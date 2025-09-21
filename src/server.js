@@ -41,6 +41,7 @@ const marksRouter = require('./routes/marks');
 const invoicesRouter = require('./routes/invoices');
 const paymentsRouter = require('./routes/payments');
 const attendanceBulkRouter = require('./routes/attendance-bulk');
+const importExportRouter = require('./routes/import-export');
 const { requireAuth } = require('./middlewares/auth');
 app.get('/api/health/db', async (req, res) => {
   try {
@@ -63,6 +64,7 @@ app.use('/api/marks', requireAuth, marksRouter);
 app.use('/api/invoices', requireAuth, invoicesRouter);
 app.use('/api/payments', requireAuth, paymentsRouter);
 app.use('/api/attendance-bulk', requireAuth, attendanceBulkRouter);
+app.use('/api/import-export', requireAuth, importExportRouter);
 
 // Static frontend
 const path = require('path');
