@@ -1,61 +1,472 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Reports</title>
-	<link rel="stylesheet" href="/styles.css" />
-<script src="/js/util.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytics - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--purple-600) 0%, var(--purple-800) 100%);
+            color: white;
+            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        }
+        
+        .page-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin: 0;
+        }
+        
+        .report-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .report-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .report-filters {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .report-actions {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+            margin-bottom: var(--space-6);
+        }
+        
+        .report-content {
+            min-height: 200px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            background: var(--gray-50);
+        }
+        
+        .report-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--space-4);
+        }
+        
+        .report-table th,
+        .report-table td {
+            padding: var(--space-3) var(--space-4);
+            text-align: left;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .report-table th {
+            background: var(--gray-100);
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+        
+        .report-table tr:hover {
+            background: var(--gray-50);
+        }
+        
+        .chart-container {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin-top: var(--space-4);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .chart-placeholder {
+            height: 300px;
+            background: linear-gradient(135deg, var(--gray-100), var(--gray-200));
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--gray-500);
+            font-size: 1.125rem;
+            font-weight: 500;
+        }
+        
+        .metric-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+            transition: all var(--transition-normal);
+        }
+        
+        .metric-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .metric-card h4 {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        
+        .metric-card .value {
+            color: var(--gray-900);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+        
+        .metric-card .change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .metric-card .change.positive {
+            color: var(--success-600);
+        }
+        
+        .metric-card .change.negative {
+            color: var(--error-600);
+        }
+        
+        .report-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .loading-state {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-8);
+            color: var(--gray-500);
+        }
+        
+        .loading-state i {
+            margin-right: var(--space-3);
+            animation: spin 1s linear infinite;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-16) var(--space-8);
+            color: var(--gray-500);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: var(--space-4);
+        }
+        
+        .empty-state h3 {
+            color: var(--gray-600);
+            font-size: 1.25rem;
+            margin-bottom: var(--space-2);
+        }
+        
+        .empty-state p {
+            color: var(--gray-500);
+            margin: 0;
+        }
+        
+        .export-options {
+            display: flex;
+            gap: var(--space-3);
+            margin-top: var(--space-4);
+        }
+        
+        .export-btn {
+            background: var(--gray-100);
+            color: var(--gray-700);
+            border: 1px solid var(--gray-300);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .export-btn:hover {
+            background: var(--gray-200);
+            border-color: var(--gray-400);
+        }
+        
+        .export-btn.primary {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            border-color: var(--primary-300);
+        }
+        
+        .export-btn.primary:hover {
+            background: var(--primary-200);
+            border-color: var(--primary-400);
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .report-filters {
+                grid-template-columns: 1fr;
+            }
+            
+            .report-actions {
+                flex-direction: column;
+            }
+            
+            .report-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .export-options {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header>
-		<h1>Reports</h1>
-		<nav>
-			<a href="/index.html">Dashboard</a>
-			<a href="/students.html">Students</a>
-			<a href="/fees.html">Fees</a>
-            <a href="/attendance.html">Attendance</a>
-            <a href="/attendance-bulk.html">Bulk Attendance</a>
-            <a href="/reports.html">Reports</a>
-            <a href="/classes.html">Classes</a>
-            <a href="/marks.html">Marks</a>
-            <a href="/invoices.html">Invoices</a>
-            <a href="/import-export.html">Import/Export</a>
-            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
-		</nav>
-	</header>
-	<main>
-		<section>
-			<h3>Attendance Report</h3>
-			<input placeholder="Class" id="attClass" />
-			<input placeholder="From (YYYY-MM-DD)" id="attFrom" />
-			<input placeholder="To (YYYY-MM-DD)" id="attTo" />
-			<button id="attRun">Run</button>
-			<div id="attResult"></div>
-		</section>
-		<section>
-			<h3>Fees Report</h3>
-			<input placeholder="Class" id="feeClass" />
-			<input placeholder="From (YYYY-MM-DD)" id="feeFrom" />
-			<input placeholder="To (YYYY-MM-DD)" id="feeTo" />
-			<button id="feeRun">Run</button>
-			<div id="feeResult"></div>
-		</section>
-		<section>
-			<h3>Performance Report</h3>
-			<input placeholder="Class" id="perfClass" />
-			<button id="perfRun">Run</button>
-			<table>
-				<thead>
-					<tr><th>ID</th><th>Name</th><th>Roll</th><th>Class</th><th>Attendance %</th><th>Pending Fees</th></tr>
-				</thead>
-				<tbody id="perfBody"></tbody>
-			</table>
-		</section>
-	</main>
-<script src="/js/auth-guard.js"></script>
-<script>ensureAuth();</script>
-<script src="/js/reports.js"></script>
-<script>setActiveNav();</script>
-</html>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <nav>
+                <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/students.html"><i class="fas fa-users"></i> Students</a>
+                <a href="/fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+                <a href="/attendance.html"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="/attendance-bulk.html"><i class="fas fa-calendar-alt"></i> Bulk Attendance</a>
+                <a href="/reports.html" class="active"><i class="fas fa-chart-bar"></i> Reports</a>
+                <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
+                <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
+                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
+                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
 
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="container">
+                    <h1><i class="fas fa-chart-bar"></i> Reports & Analytics</h1>
+                    <p>Comprehensive reports and analytics for student management insights</p>
+                </div>
+            </div>
+
+            <!-- Quick Metrics -->
+            <div class="report-grid">
+                <div class="metric-card">
+                    <h4><i class="fas fa-users"></i> Total Students</h4>
+                    <div class="value" id="totalStudents">0</div>
+                    <div class="change positive" id="studentsChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <h4><i class="fas fa-calendar-check"></i> Attendance Rate</h4>
+                    <div class="value" id="attendanceRate">0%</div>
+                    <div class="change positive" id="attendanceChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <h4><i class="fas fa-dollar-sign"></i> Total Revenue</h4>
+                    <div class="value" id="totalRevenue">$0</div>
+                    <div class="change positive" id="revenueChange">+0%</div>
+                </div>
+                <div class="metric-card">
+                    <h4><i class="fas fa-graduation-cap"></i> Average Grade</h4>
+                    <div class="value" id="averageGrade">0%</div>
+                    <div class="change positive" id="gradeChange">+0%</div>
+                </div>
+            </div>
+
+            <!-- Attendance Report -->
+            <div class="report-section">
+                <h3><i class="fas fa-calendar-check"></i> Attendance Report</h3>
+                <div class="report-filters">
+                    <div class="form-group">
+                        <label for="attClass">Class</label>
+                        <input type="text" id="attClass" placeholder="Enter class (e.g., Grade 1)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="attFrom">From Date</label>
+                        <input type="date" id="attFrom" />
+                    </div>
+                    <div class="form-group">
+                        <label for="attTo">To Date</label>
+                        <input type="date" id="attTo" />
+                    </div>
+                </div>
+                <div class="report-actions">
+                    <button id="attRun" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Generate Report
+                    </button>
+                    <button id="attExport" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+                <div class="report-content" id="attResult">
+                    <div class="empty-state">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>No data selected</h3>
+                        <p>Select filters and click "Generate Report" to view attendance data.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Fees Report -->
+            <div class="report-section">
+                <h3><i class="fas fa-dollar-sign"></i> Fees Report</h3>
+                <div class="report-filters">
+                    <div class="form-group">
+                        <label for="feeClass">Class</label>
+                        <input type="text" id="feeClass" placeholder="Enter class (e.g., Grade 1)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="feeFrom">From Date</label>
+                        <input type="date" id="feeFrom" />
+                    </div>
+                    <div class="form-group">
+                        <label for="feeTo">To Date</label>
+                        <input type="date" id="feeTo" />
+                    </div>
+                </div>
+                <div class="report-actions">
+                    <button id="feeRun" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Generate Report
+                    </button>
+                    <button id="feeExport" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+                <div class="report-content" id="feeResult">
+                    <div class="empty-state">
+                        <i class="fas fa-chart-pie"></i>
+                        <h3>No data selected</h3>
+                        <p>Select filters and click "Generate Report" to view fees data.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Performance Report -->
+            <div class="report-section">
+                <h3><i class="fas fa-graduation-cap"></i> Performance Report</h3>
+                <div class="report-filters">
+                    <div class="form-group">
+                        <label for="perfClass">Class</label>
+                        <input type="text" id="perfClass" placeholder="Enter class (e.g., Grade 1)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="perfSubject">Subject</label>
+                        <input type="text" id="perfSubject" placeholder="Enter subject (optional)" />
+                    </div>
+                </div>
+                <div class="report-actions">
+                    <button id="perfRun" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Generate Report
+                    </button>
+                    <button id="perfExport" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+                <div class="report-content" id="perfResult">
+                    <div class="empty-state">
+                        <i class="fas fa-chart-bar"></i>
+                        <h3>No data selected</h3>
+                        <p>Select filters and click "Generate Report" to view performance data.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Custom Report -->
+            <div class="report-section">
+                <h3><i class="fas fa-cog"></i> Custom Report</h3>
+                <div class="report-filters">
+                    <div class="form-group">
+                        <label for="customType">Report Type</label>
+                        <select id="customType">
+                            <option value="attendance">Attendance Summary</option>
+                            <option value="fees">Fees Summary</option>
+                            <option value="performance">Performance Summary</option>
+                            <option value="students">Student Summary</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="customClass">Class</label>
+                        <input type="text" id="customClass" placeholder="Enter class (optional)" />
+                    </div>
+                    <div class="form-group">
+                        <label for="customFrom">From Date</label>
+                        <input type="date" id="customFrom" />
+                    </div>
+                    <div class="form-group">
+                        <label for="customTo">To Date</label>
+                        <input type="date" id="customTo" />
+                    </div>
+                </div>
+                <div class="report-actions">
+                    <button id="customRun" class="btn btn-primary">
+                        <i class="fas fa-play"></i> Generate Report
+                    </button>
+                    <button id="customExport" class="btn btn-secondary">
+                        <i class="fas fa-download"></i> Export CSV
+                    </button>
+                </div>
+                <div class="report-content" id="customResult">
+                    <div class="empty-state">
+                        <i class="fas fa-chart-area"></i>
+                        <h3>No data selected</h3>
+                        <p>Select report type and filters, then click "Generate Report" to view data.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>
