@@ -1,69 +1,503 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Attendance</title>
-	<link rel="stylesheet" href="/styles.css" />
-<script src="/js/util.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Attendance Management - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--info-600) 0%, var(--info-800) 100%);
+            color: white;
+            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        }
+        
+        .page-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin: 0;
+        }
+        
+        .form-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .form-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+        
+        .search-section {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+        
+        .table-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .table-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+        
+        .attendance-badge {
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .status-present {
+            background: var(--success-100);
+            color: var(--success-700);
+        }
+        
+        .status-absent {
+            background: var(--error-100);
+            color: var(--error-700);
+        }
+        
+        .attendance-id {
+            background: var(--info-100);
+            color: var(--info-700);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .student-link {
+            color: var(--primary-600);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color var(--transition-fast);
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .student-link:hover {
+            color: var(--primary-700);
+            text-decoration: underline;
+        }
+        
+        .date-display {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-16) var(--space-8);
+            color: var(--gray-500);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: var(--space-4);
+        }
+        
+        .empty-state h3 {
+            color: var(--gray-600);
+            font-size: 1.25rem;
+            margin-bottom: var(--space-2);
+        }
+        
+        .empty-state p {
+            color: var(--gray-500);
+            margin: 0;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .summary-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+        
+        .summary-card h4 {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .summary-card .value {
+            color: var(--gray-900);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+        
+        .summary-card .change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .summary-card .change.positive {
+            color: var(--success-600);
+        }
+        
+        .summary-card .change.negative {
+            color: var(--error-600);
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+        
+        .quick-action-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+            transition: all var(--transition-normal);
+            cursor: pointer;
+        }
+        
+        .quick-action-card:hover {
+            box-shadow: var(--shadow-md);
+            transform: translateY(-2px);
+        }
+        
+        .quick-action-card i {
+            font-size: 2rem;
+            color: var(--primary-600);
+            margin-bottom: var(--space-3);
+        }
+        
+        .quick-action-card h4 {
+            color: var(--gray-900);
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+        
+        .quick-action-card p {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header>
-		<h1>Attendance</h1>
-		<nav>
-			<a href="/index.html">Dashboard</a>
-			<a href="/students.html">Students</a>
-			<a href="/fees.html">Fees</a>
-            <a href="/attendance.html">Attendance</a>
-            <a href="/attendance-bulk.html">Bulk Attendance</a>
-            <a href="/reports.html">Reports</a>
-            <a href="/classes.html">Classes</a>
-            <a href="/marks.html">Marks</a>
-            <a href="/invoices.html">Invoices</a>
-            <a href="/import-export.html">Import/Export</a>
-            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
-		</nav>
-	</header>
-	<main>
-		<section>
-			<h3>Record Attendance</h3>
-			<form id="attendance-form">
-				<input placeholder="Student ID" id="studentId" required />
-				<input placeholder="Date (YYYY-MM-DD)" id="date" required />
-				<select id="status">
-					<option value="Present">Present</option>
-					<option value="Absent">Absent</option>
-				</select>
-				<button type="submit" id="saveAttBtn">Save</button>
-			</form>
-		</section>
-		<section>
-			<h3>Attendance Records</h3>
-			<input placeholder="Student ID" id="filterStudentId" />
-			<input placeholder="From (YYYY-MM-DD)" id="filterFrom" />
-			<input placeholder="To (YYYY-MM-DD)" id="filterTo" />
-			<select id="filterStatus">
-				<option value="">Any</option>
-				<option value="Present">Present</option>
-				<option value="Absent">Absent</option>
-			</select>
-			<button id="filterBtn" class="secondary">Filter</button>
-			<table>
-				<thead>
-					<tr><th>ID</th><th>Student</th><th>Date</th><th>Status</th></tr>
-				</thead>
-				<tbody id="attendance-body"></tbody>
-			</table>
-			<div class="pagination">
-				<button id="prevPage">Prev</button>
-				<span id="pageInfo"></span>
-				<button id="nextPage">Next</button>
-			</div>
-		</section>
-	</main>
-<script src="/js/auth-guard.js"></script>
-<script>ensureAuth();</script>
-<script src="/js/attendance.js"></script>
-<script>setActiveNav();</script>
-</html>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <nav>
+                <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/students.html"><i class="fas fa-users"></i> Students</a>
+                <a href="/fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+                <a href="/attendance.html" class="active"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="/attendance-bulk.html"><i class="fas fa-calendar-alt"></i> Bulk Attendance</a>
+                <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
+                <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
+                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
+                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
 
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="container">
+                    <h1><i class="fas fa-calendar-check"></i> Attendance Management</h1>
+                    <p>Track and manage student attendance records and attendance patterns</p>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h4><i class="fas fa-check-circle"></i> Present Today</h4>
+                    <div class="value" id="presentToday">0</div>
+                    <div class="change positive" id="presentChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-times-circle"></i> Absent Today</h4>
+                    <div class="value" id="absentToday">0</div>
+                    <div class="change negative" id="absentChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-percentage"></i> Attendance Rate</h4>
+                    <div class="value" id="attendanceRate">0%</div>
+                    <div class="change positive" id="rateChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-calendar"></i> This Month</h4>
+                    <div class="value" id="thisMonth">0</div>
+                    <div class="change positive" id="monthChange">+0%</div>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <div class="quick-action-card" onclick="markBulkAttendance()">
+                    <i class="fas fa-users"></i>
+                    <h4>Bulk Attendance</h4>
+                    <p>Mark attendance for multiple students at once</p>
+                </div>
+                <div class="quick-action-card" onclick="viewCalendar()">
+                    <i class="fas fa-calendar-alt"></i>
+                    <h4>Calendar View</h4>
+                    <p>View attendance in calendar format</p>
+                </div>
+                <div class="quick-action-card" onclick="generateReport()">
+                    <i class="fas fa-chart-line"></i>
+                    <h4>Attendance Report</h4>
+                    <p>Generate detailed attendance reports</p>
+                </div>
+                <div class="quick-action-card" onclick="exportData()">
+                    <i class="fas fa-download"></i>
+                    <h4>Export Data</h4>
+                    <p>Export attendance data to CSV</p>
+                </div>
+            </div>
+
+            <!-- Record Attendance Form -->
+            <div class="form-section">
+                <h3><i class="fas fa-plus-circle"></i> Record Attendance</h3>
+                <form id="attendance-form">
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="studentId"><i class="fas fa-user"></i> Student ID</label>
+                            <input type="number" id="studentId" placeholder="Enter student ID" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="date"><i class="fas fa-calendar"></i> Date</label>
+                            <input type="date" id="date" required />
+                        </div>
+                        <div class="form-group">
+                            <label for="status"><i class="fas fa-info-circle"></i> Status</label>
+                            <select id="status">
+                                <option value="Present">Present</option>
+                                <option value="Absent">Absent</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" id="saveAttBtn" class="btn btn-primary">
+                            <i class="fas fa-save"></i> Record Attendance
+                        </button>
+                        <button type="button" id="clearAttBtn" class="btn btn-secondary">
+                            <i class="fas fa-eraser"></i> Clear Form
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Search and Filter Section -->
+            <div class="search-section">
+                <h3><i class="fas fa-search"></i> Search & Filter</h3>
+                <div class="search-grid">
+                    <div class="form-group">
+                        <label for="filterStudentId">Student ID</label>
+                        <input type="number" id="filterStudentId" placeholder="Enter student ID" />
+                    </div>
+                    <div class="form-group">
+                        <label for="filterFrom">From Date</label>
+                        <input type="date" id="filterFrom" />
+                    </div>
+                    <div class="form-group">
+                        <label for="filterTo">To Date</label>
+                        <input type="date" id="filterTo" />
+                    </div>
+                    <div class="form-group">
+                        <label for="filterStatus">Status</label>
+                        <select id="filterStatus">
+                            <option value="">Any Status</option>
+                            <option value="Present">Present</option>
+                            <option value="Absent">Absent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="search-actions">
+                    <button id="searchAttBtn" class="btn btn-primary">
+                        <i class="fas fa-search"></i> Search
+                    </button>
+                    <button id="clearSearchAttBtn" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <!-- Attendance Table -->
+            <div class="table-section">
+                <div class="table-header">
+                    <h3><i class="fas fa-list"></i> Attendance Records</h3>
+                    <div class="table-actions">
+                        <button id="refreshAttBtn" class="btn btn-secondary">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-hashtag"></i> ID</th>
+                                <th><i class="fas fa-user"></i> Student</th>
+                                <th><i class="fas fa-calendar"></i> Date</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="attendance-body">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fas fa-spinner fa-spin"></i>
+                                    <p>Loading attendance records...</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                
+                <!-- Pagination -->
+                <div class="pagination" id="pagination"></div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/attendance.js"></script>
+</body>
+</html>
