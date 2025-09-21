@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Invoice Management - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <header>
+        <h1>Invoice Management</h1>
+        <nav>
+            <a href="/index.html">Dashboard</a>
+            <a href="/students.html">Students</a>
+            <a href="/fees.html">Fees</a>
+            <a href="/attendance.html">Attendance</a>
+            <a href="/reports.html">Reports</a>
+            <a href="/classes.html">Classes</a>
+            <a href="/marks.html">Marks</a>
+            <a href="/invoices.html">Invoices</a>
+            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
+            <button onclick="logout()" class="btn btn-secondary">Logout</button>
+        </nav>
+    </header>
+
+    <main>
+        <!-- Invoice Form -->
+        <section class="card">
+            <h2>Create New Invoice</h2>
+            <form id="invoice-form">
+                <div class="form-group">
+                    <label for="student-select">Student:</label>
+                    <select id="student-select" required>
+                        <option value="">Select Student</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="description">Description:</label>
+                    <input type="text" id="description" required placeholder="e.g., Monthly Tuition Fee">
+                </div>
+                <div class="form-group">
+                    <label for="total-amount">Total Amount:</label>
+                    <input type="number" id="total-amount" step="0.01" min="0" required placeholder="0.00">
+                </div>
+                <div class="form-group">
+                    <label for="due-date">Due Date:</label>
+                    <input type="date" id="due-date" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Create Invoice</button>
+                <button type="button" class="btn btn-secondary" onclick="clearInvoiceForm()">Clear Form</button>
+            </form>
+        </section>
+
+        <!-- Invoice List -->
+        <section class="card">
+            <h2>Invoices</h2>
+            
+            <!-- Filters -->
+            <div class="filters">
+                <select id="status-filter">
+                    <option value="">All Status</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Partially Paid">Partially Paid</option>
+                    <option value="Paid">Paid</option>
+                    <option value="Overdue">Overdue</option>
+                </select>
+                <select id="student-filter">
+                    <option value="">All Students</option>
+                </select>
+                <button onclick="loadInvoices()" class="btn btn-primary">Filter</button>
+                <button onclick="updateOverdueInvoices()" class="btn btn-warning">Update Overdue</button>
+            </div>
+
+            <!-- Invoice Table -->
+            <div class="table-container">
+                <table id="invoices-table">
+                    <thead>
+                        <tr>
+                            <th>Invoice #</th>
+                            <th>Student</th>
+                            <th>Description</th>
+                            <th>Total</th>
+                            <th>Paid</th>
+                            <th>Remaining</th>
+                            <th>Due Date</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            <div class="pagination" id="pagination"></div>
+        </section>
+    </main>
+
+    <!-- Payment Modal -->
+    <div id="payment-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closePaymentModal()">&times;</span>
+            <h2>Record Payment</h2>
+            <form id="payment-form">
+                <input type="hidden" id="payment-invoice-id">
+                <div class="form-group">
+                    <label for="payment-amount">Amount:</label>
+                    <input type="number" id="payment-amount" step="0.01" min="0" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-date">Payment Date:</label>
+                    <input type="date" id="payment-date" required>
+                </div>
+                <div class="form-group">
+                    <label for="payment-method">Payment Method:</label>
+                    <select id="payment-method">
+                        <option value="Cash">Cash</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                        <option value="Cheque">Cheque</option>
+                        <option value="Card">Card</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="payment-notes">Notes:</label>
+                    <textarea id="payment-notes" rows="3" placeholder="Optional notes"></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">Record Payment</button>
+                <button type="button" class="btn btn-secondary" onclick="closePaymentModal()">Cancel</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Invoice Details Modal -->
+    <div id="invoice-details-modal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeInvoiceDetailsModal()">&times;</span>
+            <h2>Invoice Details</h2>
+            <div id="invoice-details"></div>
+            <div id="payments-list"></div>
+        </div>
+    </div>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/invoices.js"></script>
+</body>
+</html>

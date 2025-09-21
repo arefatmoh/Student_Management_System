@@ -119,6 +119,36 @@ async function initDb() {
     ) ENGINE=InnoDB;
   `;
 
+  const createInvoices = `
+    CREATE TABLE IF NOT EXISTS Invoices (
+      INVOICE_ID INT AUTO_INCREMENT PRIMARY KEY,
+      STUDENT_ID INT NOT NULL,
+      INVOICE_NUMBER VARCHAR(50) NOT NULL UNIQUE,
+      DESCRIPTION VARCHAR(200) NOT NULL,
+      TOTAL_AMOUNT DECIMAL(10,2) NOT NULL,
+      PAID_AMOUNT DECIMAL(10,2) NOT NULL DEFAULT 0,
+      DUE_DATE DATE NOT NULL,
+      STATUS ENUM('Pending','Partially Paid','Paid','Overdue') NOT NULL DEFAULT 'Pending',
+      CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_invoices_student FOREIGN KEY (STUDENT_ID)
+        REFERENCES Students(STUDENT_ID) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+  `;
+
+  const createPayments = `
+    CREATE TABLE IF NOT EXISTS Payments (
+      PAYMENT_ID INT AUTO_INCREMENT PRIMARY KEY,
+      INVOICE_ID INT NOT NULL,
+      AMOUNT DECIMAL(10,2) NOT NULL,
+      PAYMENT_DATE DATE NOT NULL,
+      PAYMENT_METHOD ENUM('Cash','Bank Transfer','Cheque','Card') NOT NULL DEFAULT 'Cash',
+      NOTES VARCHAR(200),
+      CREATED_AT TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+      CONSTRAINT fk_payments_invoice FOREIGN KEY (INVOICE_ID)
+        REFERENCES Invoices(INVOICE_ID) ON DELETE CASCADE
+    ) ENGINE=InnoDB;
+  `;
+
   await pool.query(createStudents);
   await pool.query(createFees);
   await pool.query(createAttendance);
@@ -127,6 +157,8 @@ async function initDb() {
   await pool.query(createSections);
   await pool.query(createSubjects);
   await pool.query(createMarks);
+  await pool.query(createInvoices);
+  await pool.query(createPayments);
 }
 function getPool() {
   if (!pool) {
