@@ -999,6 +999,128 @@ tr:last-child td {
     }
 }
 
+/* Fee Management Styles */
+.fee-id {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.amount-display {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 1.125rem;
+}
+
+.amount-paid {
+    color: var(--success-600);
+}
+
+.amount-pending {
+    color: var(--warning-600);
+}
+
+.status-badge {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.status-paid {
+    background: var(--success-100);
+    color: var(--success-700);
+}
+
+.status-pending {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.student-link {
+    color: var(--primary-600);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color var(--transition-fast);
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.student-link:hover {
+    color: var(--primary-700);
+    text-decoration: underline;
+}
+
+.date-display {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+/* Summary Cards */
+.summary-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: var(--space-6);
+    margin-bottom: var(--space-8);
+}
+
+.summary-card {
+    background: white;
+    padding: var(--space-6);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+    text-align: center;
+    transition: all var(--transition-normal);
+}
+
+.summary-card:hover {
+    box-shadow: var(--shadow-md);
+    transform: translateY(-2px);
+}
+
+.summary-card h4 {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: var(--space-2);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+}
+
+.summary-card .value {
+    color: var(--gray-900);
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: var(--space-1);
+}
+
+.summary-card .change {
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.summary-card .change.positive {
+    color: var(--success-600);
+}
+
+.summary-card .change.negative {
+    color: var(--error-600);
+}
+
 /* Print Styles */
 @media print {
     header, nav, .btn, .action-menu {
