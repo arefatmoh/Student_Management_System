@@ -1,95 +1,459 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Student Management System</title>
-	<link rel="stylesheet" href="/styles.css" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .dashboard-header {
+            background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+            color: white;
+            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        }
+        
+        .dashboard-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .dashboard-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin: 0;
+        }
+        
+        .welcome-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-8);
+        }
+        
+        .welcome-text h2 {
+            color: var(--gray-900);
+            font-size: 1.875rem;
+            margin-bottom: var(--space-2);
+        }
+        
+        .welcome-text p {
+            color: var(--gray-600);
+            font-size: 1.125rem;
+        }
+        
+        .user-info {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            text-align: center;
+            min-width: 200px;
+        }
+        
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--space-4);
+            color: white;
+            font-size: 1.5rem;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .kpi-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .kpi-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .kpi-card h3 {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .kpi-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--primary-600);
+            margin-bottom: var(--space-2);
+        }
+        
+        .kpi-change {
+            font-size: 0.875rem;
+            color: var(--gray-500);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .kpi-change.positive {
+            color: var(--success-600);
+        }
+        
+        .kpi-change.negative {
+            color: var(--error-600);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--space-6);
+        }
+        
+        .feature-card {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+            transform: scaleX(0);
+            transition: transform var(--transition-normal);
+        }
+        
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+        
+        .feature-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-xl);
+            border-color: var(--primary-200);
+        }
+        
+        .feature-card h3 {
+            color: var(--gray-900);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-3);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .feature-card p {
+            color: var(--gray-600);
+            margin-bottom: var(--space-6);
+            line-height: 1.6;
+        }
+        
+        .feature-card .btn {
+            width: 100%;
+            margin: 0;
+        }
+        
+        .quick-actions {
+            background: linear-gradient(135deg, var(--primary-50) 0%, var(--primary-100) 100%);
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--primary-200);
+        }
+        
+        .quick-actions h3 {
+            color: var(--primary-800);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .quick-actions-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+        }
+        
+        .quick-action {
+            background: white;
+            padding: var(--space-4);
+            border-radius: var(--radius-lg);
+            text-align: center;
+            box-shadow: var(--shadow-sm);
+            transition: all var(--transition-fast);
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+        }
+        
+        .quick-action:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .quick-action i {
+            font-size: 1.5rem;
+            color: var(--primary-600);
+            margin-bottom: var(--space-2);
+        }
+        
+        .quick-action h4 {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard-header h1 {
+                font-size: 2rem;
+            }
+            
+            .welcome-section {
+                flex-direction: column;
+                gap: var(--space-6);
+                text-align: center;
+            }
+            
+            .kpi-grid {
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            }
+            
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header>
-		<h1>Student Management System</h1>
-		<nav>
-			<a href="/index.html">Dashboard</a>
-			<a href="/students.html">Students</a>
-			<a href="/fees.html">Fees</a>
-            <a href="/attendance.html">Attendance</a>
-            <a href="/attendance-bulk.html">Bulk Attendance</a>
-            <a href="/reports.html">Reports</a>
-            <a href="/classes.html">Classes</a>
-            <a href="/marks.html">Marks</a>
-            <a href="/invoices.html">Invoices</a>
-            <a href="/import-export.html">Import/Export</a>
-            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
-		</nav>
-	</header>
-	<main>
-		<section id="kpis">
-			<div class="card"><h3>Total Students</h3><div id="kpi-students">-</div></div>
-			<div class="card"><h3>Pending Fees</h3><div id="kpi-pending">-</div></div>
-			<div class="card"><h3>Today Present</h3><div id="kpi-present">-</div></div>
-			<div class="card"><h3>Overdue Invoices</h3><div id="kpi-overdue">-</div></div>
-			<div class="card"><h3>Total Classes</h3><div id="kpi-classes">-</div></div>
-			<div class="card"><h3>Total Subjects</h3><div id="kpi-subjects">-</div></div>
-		</section>
-		
-		<section class="feature-grid">
-			<div class="card feature-card">
-				<h3>📚 Student Management</h3>
-				<p>Add, edit, and manage student information</p>
-				<a href="/students.html" class="btn btn-primary">Manage Students</a>
-			</div>
-			<div class="card feature-card">
-				<h3>💰 Fee Management</h3>
-				<p>Track and record student fee payments</p>
-				<a href="/fees.html" class="btn btn-primary">Manage Fees</a>
-			</div>
-			<div class="card feature-card">
-				<h3>📋 Attendance</h3>
-				<p>Record and track student attendance</p>
-				<a href="/attendance.html" class="btn btn-primary">Mark Attendance</a>
-			</div>
-			<div class="card feature-card">
-				<h3>📅 Bulk Attendance</h3>
-				<p>Bulk marking and calendar view</p>
-				<a href="/attendance-bulk.html" class="btn btn-primary">Bulk Attendance</a>
-			</div>
-			<div class="card feature-card">
-				<h3>📊 Reports</h3>
-				<p>View comprehensive reports and analytics</p>
-				<a href="/reports.html" class="btn btn-primary">View Reports</a>
-			</div>
-			<div class="card feature-card">
-				<h3>🏫 Classes & Subjects</h3>
-				<p>Manage classes, sections, and subjects</p>
-				<a href="/classes.html" class="btn btn-primary">Manage Classes</a>
-			</div>
-			<div class="card feature-card">
-				<h3>📝 Grades & Marks</h3>
-				<p>Record and track student grades</p>
-				<a href="/marks.html" class="btn btn-primary">Manage Marks</a>
-			</div>
-			<div class="card feature-card">
-				<h3>🧾 Invoices</h3>
-				<p>Create invoices and track payments</p>
-				<a href="/invoices.html" class="btn btn-primary">Manage Invoices</a>
-			</div>
-			<div class="card feature-card">
-				<h3>📊 Import/Export</h3>
-				<p>Import and export data via CSV</p>
-				<a href="/import-export.html" class="btn btn-primary">Data Management</a>
-			</div>
-			<div class="card feature-card" id="adminCard" style="display: none;">
-				<h3>👤 Admin Panel</h3>
-				<p>Manage users and system settings</p>
-				<a href="/admin.html" class="btn btn-primary">Admin Panel</a>
-			</div>
-		</section>
-	</main>
-<script src="/js/util.js"></script>
-<script src="/js/auth-guard.js"></script>
-<script>ensureAuth();</script>
-<script src="/js/index.js"></script>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <nav>
+                <a href="/index.html" class="active"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/students.html"><i class="fas fa-users"></i> Students</a>
+                <a href="/fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+                <a href="/attendance.html"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="/attendance-bulk.html"><i class="fas fa-calendar-alt"></i> Bulk Attendance</a>
+                <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
+                <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
+                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
+                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Dashboard Header -->
+            <div class="dashboard-header">
+                <div class="container">
+                    <h1><i class="fas fa-tachometer-alt"></i> Dashboard</h1>
+                    <p>Welcome to your Student Management System control center</p>
+                </div>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <div class="welcome-text">
+                    <h2>Welcome back!</h2>
+                    <p>Here's what's happening with your students today.</p>
+                </div>
+                <div class="user-info" id="userInfo">
+                    <div class="user-avatar">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h4 id="userName">Loading...</h4>
+                    <p id="userRole" class="text-muted">Loading...</p>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            <div class="quick-actions">
+                <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                <div class="quick-actions-grid">
+                    <a href="/students.html" class="quick-action">
+                        <i class="fas fa-user-plus"></i>
+                        <h4>Add Student</h4>
+                    </a>
+                    <a href="/attendance.html" class="quick-action">
+                        <i class="fas fa-calendar-check"></i>
+                        <h4>Mark Attendance</h4>
+                    </a>
+                    <a href="/invoices.html" class="quick-action">
+                        <i class="fas fa-file-invoice-dollar"></i>
+                        <h4>Create Invoice</h4>
+                    </a>
+                    <a href="/reports.html" class="quick-action">
+                        <i class="fas fa-chart-line"></i>
+                        <h4>View Reports</h4>
+                    </a>
+                </div>
+            </div>
+
+            <!-- KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <h3><i class="fas fa-users"></i> Total Students</h3>
+                    <div class="kpi-value" id="kpi-students">-</div>
+                    <div class="kpi-change" id="students-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <h3><i class="fas fa-exclamation-triangle"></i> Pending Fees</h3>
+                    <div class="kpi-value" id="kpi-pending">-</div>
+                    <div class="kpi-change" id="fees-change">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <h3><i class="fas fa-calendar-check"></i> Today Present</h3>
+                    <div class="kpi-value" id="kpi-present">-</div>
+                    <div class="kpi-change" id="attendance-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <h3><i class="fas fa-exclamation-circle"></i> Overdue Invoices</h3>
+                    <div class="kpi-value" id="kpi-overdue">-</div>
+                    <div class="kpi-change" id="overdue-change">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <h3><i class="fas fa-school"></i> Total Classes</h3>
+                    <div class="kpi-value" id="kpi-classes">-</div>
+                    <div class="kpi-change" id="classes-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <h3><i class="fas fa-book"></i> Total Subjects</h3>
+                    <div class="kpi-value" id="kpi-subjects">-</div>
+                    <div class="kpi-change" id="subjects-change">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Loading...</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Feature Cards -->
+            <div class="feature-grid">
+                <div class="card feature-card">
+                    <h3><i class="fas fa-users"></i> Student Management</h3>
+                    <p>Add, edit, and manage student information with comprehensive profiles and academic tracking.</p>
+                    <a href="/students.html" class="btn btn-primary">Manage Students</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-dollar-sign"></i> Fee Management</h3>
+                    <p>Track and record student fee payments with automated reminders and payment history.</p>
+                    <a href="/fees.html" class="btn btn-primary">Manage Fees</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-calendar-check"></i> Attendance</h3>
+                    <p>Record and track student attendance with detailed reports and analytics.</p>
+                    <a href="/attendance.html" class="btn btn-primary">Mark Attendance</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-calendar-alt"></i> Bulk Attendance</h3>
+                    <p>Efficiently mark attendance for multiple students with calendar view and bulk operations.</p>
+                    <a href="/attendance-bulk.html" class="btn btn-primary">Bulk Attendance</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-chart-bar"></i> Reports</h3>
+                    <p>View comprehensive reports and analytics for students, attendance, and academic performance.</p>
+                    <a href="/reports.html" class="btn btn-primary">View Reports</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-school"></i> Classes & Subjects</h3>
+                    <p>Manage classes, sections, and subjects with flexible academic structure management.</p>
+                    <a href="/classes.html" class="btn btn-primary">Manage Classes</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-graduation-cap"></i> Grades & Marks</h3>
+                    <p>Record and track student grades with comprehensive academic performance monitoring.</p>
+                    <a href="/marks.html" class="btn btn-primary">Manage Marks</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-file-invoice"></i> Invoices</h3>
+                    <p>Create professional invoices and track payments with automated due date management.</p>
+                    <a href="/invoices.html" class="btn btn-primary">Manage Invoices</a>
+                </div>
+                <div class="card feature-card">
+                    <h3><i class="fas fa-download"></i> Import/Export</h3>
+                    <p>Import and export data via CSV with bulk operations and data validation.</p>
+                    <a href="/import-export.html" class="btn btn-primary">Data Management</a>
+                </div>
+                <div class="card feature-card" id="adminCard" style="display: none;">
+                    <h3><i class="fas fa-cog"></i> Admin Panel</h3>
+                    <p>Manage users, system settings, and administrative functions with role-based access control.</p>
+                    <a href="/admin.html" class="btn btn-primary">Admin Panel</a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script>ensureAuth();</script>
+    <script src="js/index.js"></script>
 </body>
 </html>
-
