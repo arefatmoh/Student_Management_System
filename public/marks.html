@@ -1,56 +1,644 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Marks</title>
-	<link rel="stylesheet" href="/styles.css" />
-<script src="/js/util.js"></script>
-<script src="/js/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Marks & Grades - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--success-600) 0%, var(--success-800) 100%);
+            color: white;
+            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        }
+        
+        .page-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin: 0;
+        }
+        
+        .form-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .form-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+        
+        .search-section {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .search-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+        
+        .search-actions {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+        
+        .table-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .table-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+        
+        .grade-badge {
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+        
+        .grade-excellent {
+            background: var(--success-100);
+            color: var(--success-700);
+        }
+        
+        .grade-good {
+            background: var(--info-100);
+            color: var(--info-700);
+        }
+        
+        .grade-average {
+            background: var(--warning-100);
+            color: var(--warning-700);
+        }
+        
+        .grade-poor {
+            background: var(--error-100);
+            color: var(--error-700);
+        }
+        
+        .score-display {
+            font-weight: 600;
+            color: var(--gray-900);
+            font-size: 1.125rem;
+        }
+        
+        .percentage-display {
+            font-weight: 500;
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-16) var(--space-8);
+            color: var(--gray-500);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: var(--space-4);
+        }
+        
+        .empty-state h3 {
+            color: var(--gray-600);
+            font-size: 1.25rem;
+            margin-bottom: var(--space-2);
+        }
+        
+        .empty-state p {
+            color: var(--gray-500);
+            margin: 0;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .summary-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+        
+        .summary-card h4 {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .summary-card .value {
+            color: var(--gray-900);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+        
+        .summary-card .change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .summary-card .change.positive {
+            color: var(--success-600);
+        }
+        
+        .summary-card .change.negative {
+            color: var(--error-600);
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-1);
+            margin-bottom: var(--space-6);
+        }
+        
+        .tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--gray-600);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .tab.active {
+            background: white;
+            color: var(--primary-600);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .grade-chart {
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: var(--space-6);
+            margin-top: var(--space-4);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .grade-chart h4 {
+            color: var(--gray-900);
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .grade-bar {
+            display: flex;
+            align-items: center;
+            margin-bottom: var(--space-3);
+        }
+        
+        .grade-bar-label {
+            width: 100px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--gray-700);
+        }
+        
+        .grade-bar-fill {
+            flex: 1;
+            height: 20px;
+            background: var(--gray-200);
+            border-radius: var(--radius-sm);
+            margin: 0 var(--space-3);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .grade-bar-progress {
+            height: 100%;
+            border-radius: var(--radius-sm);
+            transition: width var(--transition-normal);
+        }
+        
+        .grade-bar-count {
+            width: 60px;
+            text-align: right;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray-700);
+        }
+        
+        .tip-box {
+            background: var(--info-50);
+            border: 1px solid var(--info-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            margin-top: var(--space-4);
+        }
+        
+        .tip-box h4 {
+            color: var(--info-700);
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .tip-box p {
+            color: var(--info-600);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header>
-		<h1>Marks</h1>
-		<nav>
-			<a href="/index.html">Dashboard</a>
-			<a href="/students.html">Students</a>
-			<a href="/fees.html">Fees</a>
-            <a href="/attendance.html">Attendance</a>
-            <a href="/attendance-bulk.html">Bulk Attendance</a>
-            <a href="/reports.html">Reports</a>
-			<a href="/classes.html">Classes</a>
-			<a href="/marks.html">Marks</a>
-            <a href="/invoices.html">Invoices</a>
-            <a href="/import-export.html">Import/Export</a>
-            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
-		</nav>
-	</header>
-	<main>
-		<section class="card" style="max-width:620px;">
-			<h3>Record Mark</h3>
-			<form id="mark-form">
-				<input id="studentId" placeholder="Student ID" required />
-				<input id="subjectId" placeholder="Subject ID" required />
-				<input id="term" placeholder="Term (e.g., T1)" required />
-				<input id="score" placeholder="Score" type="number" min="0" step="0.01" required />
-				<input id="maxScore" placeholder="Max (default 100)" type="number" min="1" step="0.01" />
-				<button type="submit" id="saveMarkBtn">Save</button>
-			</form>
-			<p class="muted">Tip: Use Subjects list to find IDs.</p>
-		</section>
-		<section>
-			<h3>Marks by Student</h3>
-			<input id="queryStudentId" placeholder="Student ID" />
-			<input id="queryTerm" placeholder="Term" />
-			<button id="loadByStudent" class="secondary">Load</button>
-			<table>
-				<thead><tr><th>Subject</th><th>Term</th><th>Score</th><th>Max</th></tr></thead>
-				<tbody id="student-marks"></tbody>
-			</table>
-		</section>
-	</main>
-	<script src="/js/marks.js"></script>
-	<script>ensureAuth();</script>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <nav>
+                <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/students.html"><i class="fas fa-users"></i> Students</a>
+                <a href="/fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+                <a href="/attendance.html"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="/attendance-bulk.html"><i class="fas fa-calendar-alt"></i> Bulk Attendance</a>
+                <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
+                <a href="/marks.html" class="active"><i class="fas fa-graduation-cap"></i> Marks</a>
+                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
+                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="container">
+                    <h1><i class="fas fa-graduation-cap"></i> Marks & Grades</h1>
+                    <p>Record and manage student academic performance and grades</p>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h4><i class="fas fa-chart-line"></i> Average Grade</h4>
+                    <div class="value" id="averageGrade">0%</div>
+                    <div class="change positive" id="gradeChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-trophy"></i> Excellent Grades</h4>
+                    <div class="value" id="excellentGrades">0</div>
+                    <div class="change positive" id="excellentChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-users"></i> Students Graded</h4>
+                    <div class="value" id="studentsGraded">0</div>
+                    <div class="change positive" id="gradedChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-book"></i> Subjects</h4>
+                    <div class="value" id="totalSubjects">0</div>
+                    <div class="change positive" id="subjectsChange">+0%</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('record')">
+                    <i class="fas fa-plus-circle"></i> Record Marks
+                </button>
+                <button class="tab" onclick="switchTab('view')">
+                    <i class="fas fa-eye"></i> View Marks
+                </button>
+                <button class="tab" onclick="switchTab('analytics')">
+                    <i class="fas fa-chart-bar"></i> Analytics
+                </button>
+            </div>
+
+            <!-- Record Marks Tab -->
+            <div id="record-tab" class="tab-content active">
+                <!-- Record Mark Form -->
+                <div class="form-section">
+                    <h3><i class="fas fa-plus-circle"></i> Record Student Mark</h3>
+                    <form id="mark-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="studentId"><i class="fas fa-user"></i> Student ID</label>
+                                <input type="number" id="studentId" placeholder="Enter student ID" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectId"><i class="fas fa-book"></i> Subject ID</label>
+                                <input type="number" id="subjectId" placeholder="Enter subject ID" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="term"><i class="fas fa-calendar"></i> Term</label>
+                                <input type="text" id="term" placeholder="Enter term (e.g., T1, Mid-term)" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="score"><i class="fas fa-star"></i> Score</label>
+                                <input type="number" id="score" placeholder="Enter score" min="0" step="0.01" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="maxScore"><i class="fas fa-trophy"></i> Maximum Score</label>
+                                <input type="number" id="maxScore" placeholder="Enter max score (default 100)" min="1" step="0.01" />
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="saveMarkBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Record Mark
+                            </button>
+                            <button type="button" id="clearMarkBtn" class="btn btn-secondary">
+                                <i class="fas fa-eraser"></i> Clear Form
+                            </button>
+                        </div>
+                    </form>
+                    <div class="tip-box">
+                        <h4><i class="fas fa-lightbulb"></i> Tip</h4>
+                        <p>Use the Subjects list below to find the correct Subject IDs for recording marks.</p>
+                    </div>
+                </div>
+
+                <!-- Subjects Reference -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3><i class="fas fa-book"></i> Subjects Reference</h3>
+                        <div class="table-actions">
+                            <button id="refreshSubjectsBtn" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-hashtag"></i> ID</th>
+                                    <th><i class="fas fa-book"></i> Subject Name</th>
+                                    <th><i class="fas fa-code"></i> Code</th>
+                                    <th><i class="fas fa-school"></i> Class</th>
+                                    <th><i class="fas fa-info-circle"></i> Description</th>
+                                </tr>
+                            </thead>
+                            <tbody id="subjects-body">
+                                <tr>
+                                    <td colspan="5" class="empty-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading subjects...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- View Marks Tab -->
+            <div id="view-tab" class="tab-content">
+                <!-- Search Section -->
+                <div class="search-section">
+                    <h3><i class="fas fa-search"></i> Search Marks</h3>
+                    <div class="search-grid">
+                        <div class="form-group">
+                            <label for="queryStudentId">Student ID</label>
+                            <input type="number" id="queryStudentId" placeholder="Enter student ID" />
+                        </div>
+                        <div class="form-group">
+                            <label for="querySubjectId">Subject ID</label>
+                            <input type="number" id="querySubjectId" placeholder="Enter subject ID" />
+                        </div>
+                        <div class="form-group">
+                            <label for="queryTerm">Term</label>
+                            <input type="text" id="queryTerm" placeholder="Enter term" />
+                        </div>
+                        <div class="form-group">
+                            <label for="queryClass">Class</label>
+                            <input type="text" id="queryClass" placeholder="Enter class" />
+                        </div>
+                    </div>
+                    <div class="search-actions">
+                        <button id="loadByStudent" class="btn btn-primary">
+                            <i class="fas fa-search"></i> Search Marks
+                        </button>
+                        <button id="clearSearchBtn" class="btn btn-secondary">
+                            <i class="fas fa-times"></i> Clear Filters
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Marks Table -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Student Marks</h3>
+                        <div class="table-actions">
+                            <button id="refreshMarksBtn" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-user"></i> Student</th>
+                                    <th><i class="fas fa-book"></i> Subject</th>
+                                    <th><i class="fas fa-calendar"></i> Term</th>
+                                    <th><i class="fas fa-star"></i> Score</th>
+                                    <th><i class="fas fa-trophy"></i> Max</th>
+                                    <th><i class="fas fa-percentage"></i> Grade</th>
+                                    <th><i class="fas fa-cog"></i> Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="student-marks">
+                                <tr>
+                                    <td colspan="7" class="empty-state">
+                                        <i class="fas fa-graduation-cap"></i>
+                                        <h3>No marks found</h3>
+                                        <p>Search for marks or record new ones to get started.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Analytics Tab -->
+            <div id="analytics-tab" class="tab-content">
+                <div class="table-section">
+                    <h3><i class="fas fa-chart-bar"></i> Grade Analytics</h3>
+                    
+                    <div class="grade-chart">
+                        <h4><i class="fas fa-chart-pie"></i> Grade Distribution</h4>
+                        <div class="grade-bar">
+                            <div class="grade-bar-label">Excellent (90-100%)</div>
+                            <div class="grade-bar-fill">
+                                <div class="grade-bar-progress grade-excellent" style="width: 25%"></div>
+                            </div>
+                            <div class="grade-bar-count">25</div>
+                        </div>
+                        <div class="grade-bar">
+                            <div class="grade-bar-label">Good (80-89%)</div>
+                            <div class="grade-bar-fill">
+                                <div class="grade-bar-progress grade-good" style="width: 35%"></div>
+                            </div>
+                            <div class="grade-bar-count">35</div>
+                        </div>
+                        <div class="grade-bar">
+                            <div class="grade-bar-label">Average (70-79%)</div>
+                            <div class="grade-bar-fill">
+                                <div class="grade-bar-progress grade-average" style="width: 25%"></div>
+                            </div>
+                            <div class="grade-bar-count">25</div>
+                        </div>
+                        <div class="grade-bar">
+                            <div class="grade-bar-label">Poor (Below 70%)</div>
+                            <div class="grade-bar-fill">
+                                <div class="grade-bar-progress grade-poor" style="width: 15%"></div>
+                            </div>
+                            <div class="grade-bar-count">15</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/marks.js"></script>
 </body>
 </html>
-

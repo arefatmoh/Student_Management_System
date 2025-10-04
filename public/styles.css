@@ -1530,6 +1530,163 @@ tr:last-child td {
     margin-top: var(--space-3);
 }
 
+/* Marks & Grades Styles */
+.grade-badge {
+    padding: var(--space-1) var(--space-3);
+    border-radius: var(--radius-full);
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    display: inline-flex;
+    align-items: center;
+    gap: var(--space-1);
+}
+
+.grade-excellent {
+    background: var(--success-100);
+    color: var(--success-700);
+}
+
+.grade-good {
+    background: var(--info-100);
+    color: var(--info-700);
+}
+
+.grade-average {
+    background: var(--warning-100);
+    color: var(--warning-700);
+}
+
+.grade-poor {
+    background: var(--error-100);
+    color: var(--error-700);
+}
+
+.score-display {
+    font-weight: 600;
+    color: var(--gray-900);
+    font-size: 1.125rem;
+}
+
+.percentage-display {
+    font-weight: 500;
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+.subject-id {
+    background: var(--primary-100);
+    color: var(--primary-700);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.subject-code {
+    background: var(--gray-100);
+    color: var(--gray-700);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.term-badge {
+    background: var(--info-100);
+    color: var(--info-700);
+    padding: var(--space-1) var(--space-2);
+    border-radius: var(--radius-sm);
+    font-size: 0.75rem;
+    font-weight: 500;
+}
+
+.max-score {
+    color: var(--gray-600);
+    font-size: 0.875rem;
+}
+
+/* Grade Chart */
+.grade-chart {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--space-6);
+    margin-top: var(--space-4);
+    box-shadow: var(--shadow-sm);
+}
+
+.grade-chart h4 {
+    color: var(--gray-900);
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: var(--space-4);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.grade-bar {
+    display: flex;
+    align-items: center;
+    margin-bottom: var(--space-3);
+}
+
+.grade-bar-label {
+    width: 100px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: var(--gray-700);
+}
+
+.grade-bar-fill {
+    flex: 1;
+    height: 20px;
+    background: var(--gray-200);
+    border-radius: var(--radius-sm);
+    margin: 0 var(--space-3);
+    position: relative;
+    overflow: hidden;
+}
+
+.grade-bar-progress {
+    height: 100%;
+    border-radius: var(--radius-sm);
+    transition: width var(--transition-normal);
+}
+
+.grade-bar-count {
+    width: 60px;
+    text-align: right;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.tip-box {
+    background: var(--info-50);
+    border: 1px solid var(--info-200);
+    border-radius: var(--radius-lg);
+    padding: var(--space-4);
+    margin-top: var(--space-4);
+}
+
+.tip-box h4 {
+    color: var(--info-700);
+    font-size: 0.875rem;
+    font-weight: 600;
+    margin-bottom: var(--space-2);
+    display: flex;
+    align-items: center;
+    gap: var(--space-2);
+}
+
+.tip-box p {
+    color: var(--info-600);
+    font-size: 0.875rem;
+    margin: 0;
+}
+
 /* Print Styles */
 @media print {
     header, nav, .btn, .action-menu {
