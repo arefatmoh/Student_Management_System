@@ -1,93 +1,439 @@
-async function loadClasses(){
-	const list = await apiFetch('/api/classes');
-	const body = document.getElementById('classes-body');
-	body.innerHTML = '';
-	for(const c of list){
-		const tr = document.createElement('tr');
-		tr.innerHTML = `<td>${c.CLASS_ID}</td><td>${c.NAME}</td><td>
-			<div data-class="${c.CLASS_ID}" class="sections"></div>
-			<form data-class="${c.CLASS_ID}" class="section-form">
-				<input placeholder="New section" />
-				<button type="submit" class="secondary">Add</button>
-			</form>
-		</td><td>
-			<div data-class="${c.CLASS_ID}" class="subjects"></div>
-			<form data-class="${c.CLASS_ID}" class="subject-form">
-				<input placeholder="New subject" />
-				<button type="submit" class="secondary">Add</button>
-			</form>
-		</td><td>
-			<button data-id="${c.CLASS_ID}" class="del danger">Delete</button>
-		</td>`;
-		body.appendChild(tr);
-	}
-
-	// Load sub-lists
-	for(const c of list){
-		const sectionsBox = document.querySelector(`.sections[data-class="${c.CLASS_ID}"]`);
-		const sections = await apiFetch(`/api/classes/${c.CLASS_ID}/sections`);
-		sectionsBox.innerHTML = sections.map(s => `<span class="tag">${s.NAME} <a href="#" data-id="${s.SECTION_ID}" class="x">×</a></span>`).join(' ');
-
-		const subjectsBox = document.querySelector(`.subjects[data-class="${c.CLASS_ID}"]`);
-		const subjects = await apiFetch(`/api/classes/${c.CLASS_ID}/subjects`);
-		subjectsBox.innerHTML = subjects.map(s => `<span class="tag">${s.NAME} <a href="#" data-id="${s.SUBJECT_ID}" class="x">×</a></span>`).join(' ');
-	}
-
-	// Bind deletes for tags
-	document.querySelectorAll('.sections .x').forEach(a => a.addEventListener('click', async (e)=>{
-		e.preventDefault();
-		const id = e.target.getAttribute('data-id');
-		const parent = e.target.closest('.sections');
-		const classId = parent.getAttribute('data-class');
-		await apiFetch(`/api/classes/${classId}/sections/${id}`, { method: 'DELETE' });
-		window.showToast('Section removed');
-		loadClasses();
-	}));
-	document.querySelectorAll('.subjects .x').forEach(a => a.addEventListener('click', async (e)=>{
-		e.preventDefault();
-		const id = e.target.getAttribute('data-id');
-		const parent = e.target.closest('.subjects');
-		const classId = parent.getAttribute('data-class');
-		await apiFetch(`/api/classes/${classId}/subjects/${id}`, { method: 'DELETE' });
-		window.showToast('Subject removed');
-		loadClasses();
-	}));
-
-	// Add section/subject
-	document.querySelectorAll('.section-form').forEach(f => f.addEventListener('submit', async (e)=>{
-		e.preventDefault();
-		const classId = e.target.getAttribute('data-class');
-		const input = e.target.querySelector('input');
-		await apiFetch(`/api/classes/${classId}/sections`, { method: 'POST', body: JSON.stringify({ NAME: input.value }) });
-		input.value = '';
-		loadClasses();
-	}));
-	document.querySelectorAll('.subject-form').forEach(f => f.addEventListener('submit', async (e)=>{
-		e.preventDefault();
-		const classId = e.target.getAttribute('data-class');
-		const input = e.target.querySelector('input');
-		await apiFetch(`/api/classes/${classId}/subjects`, { method: 'POST', body: JSON.stringify({ NAME: input.value }) });
-		input.value = '';
-		loadClasses();
-	}));
-
-	// Class delete
-	document.querySelectorAll('button.del').forEach(btn => btn.addEventListener('click', async (e)=>{
-		const id = e.target.getAttribute('data-id');
-		if(!confirm('Delete class? This removes sections and subjects.')) return;
-		await apiFetch(`/api/classes/${id}`, { method: 'DELETE' });
-		window.showToast('Class deleted');
-		loadClasses();
-	}));
+async function fetchJson(url, options) { 
+    return window.apiFetch(url, options); 
 }
 
-document.getElementById('class-form').addEventListener('submit', async (e)=>{
-	e.preventDefault();
-	await apiFetch('/api/classes', { method: 'POST', body: JSON.stringify({ NAME: document.getElementById('className').value }) });
-	document.getElementById('className').value='';
-	loadClasses();
+let currentTab = 'classes';
+
+// Load initial metrics
+async function loadMetrics() {
+    try {
+        // Load classes count
+        const classes = await fetchJson('/api/classes');
+        const totalClasses = classes.length || 0;
+        document.getElementById('totalClasses').textContent = totalClasses;
+        updateChangeIndicator('classesChange', totalClasses, totalClasses - 2);
+        
+        // Load subjects count
+        const subjects = await fetchJson('/api/classes/subjects');
+        const totalSubjects = subjects.length || 0;
+        document.getElementById('totalSubjects').textContent = totalSubjects;
+        updateChangeIndicator('subjectsChange', totalSubjects, totalSubjects - 3);
+        
+        // Load students count
+        const students = await fetchJson('/api/students?limit=1');
+        const totalStudents = students.total || 0;
+        document.getElementById('totalStudents').textContent = totalStudents;
+        updateChangeIndicator('studentsChange', totalStudents, totalStudents - 5);
+        
+        // Mock active classes (same as total for now)
+        document.getElementById('activeClasses').textContent = totalClasses;
+        updateChangeIndicator('activeChange', totalClasses, totalClasses - 1);
+        
+    } catch (error) {
+        console.error('Error loading metrics:', error);
+    }
+}
+
+// Update change indicator
+function updateChangeIndicator(elementId, current, previous) {
+    const element = document.getElementById(elementId);
+    if (!element) return;
+    
+    const change = current - previous;
+    const changePercent = previous > 0 ? Math.round((change / previous) * 100) : 0;
+    
+    if (change > 0) {
+        element.className = 'change positive';
+        element.innerHTML = `+${changePercent}%`;
+    } else if (change < 0) {
+        element.className = 'change negative';
+        element.innerHTML = `${changePercent}%`;
+    } else {
+        element.className = 'change';
+        element.innerHTML = '0%';
+    }
+}
+
+// Switch tabs
+function switchTab(tabName) {
+    currentTab = tabName;
+    
+    // Update tab buttons
+    document.querySelectorAll('.tab').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelector(`[onclick="switchTab('${tabName}')"]`).classList.add('active');
+    
+    // Update tab content
+    document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+    });
+    document.getElementById(`${tabName}-tab`).classList.add('active');
+    
+    // Load data for the active tab
+    if (tabName === 'classes') {
+        loadClasses();
+    } else if (tabName === 'subjects') {
+        loadSubjects();
+    }
+}
+
+// Load classes
+async function loadClasses() {
+    try {
+        const classes = await fetchJson('/api/classes');
+        const body = document.getElementById('classes-body');
+        
+        if (classes.length === 0) {
+            body.innerHTML = `
+                <tr>
+                    <td colspan="6" class="empty-state">
+                        <i class="fas fa-school"></i>
+                        <h3>No classes found</h3>
+                        <p>Create your first class to get started.</p>
+                    </td>
+                </tr>
+            `;
+            return;
+        }
+        
+        body.innerHTML = classes.map(cls => `
+            <tr>
+                <td><span class="class-id">#${cls.CLASS_ID}</span></td>
+                <td><span class="class-name">${cls.NAME}</span></td>
+                <td>${cls.DESCRIPTION || '<span class="text-muted">No description</span>'}</td>
+                <td><span class="stats-badge">${cls.studentCount || 0} students</span></td>
+                <td><span class="stats-badge">${cls.subjectCount || 0} subjects</span></td>
+                <td>
+                    <div class="action-menu">
+                        <button class="action-trigger" onclick="toggleActionMenu(${cls.CLASS_ID})">
+                            <i class="fas fa-ellipsis-v"></i>
+                            Actions
+                        </button>
+                        <div class="action-dropdown" id="menu-${cls.CLASS_ID}">
+                            <a href="#" class="action-item" onclick="editClass(${cls.CLASS_ID})">
+                                <i class="fas fa-edit"></i>
+                                Edit Class
+                            </a>
+                            <a href="#" class="action-item" onclick="manageSubjects(${cls.CLASS_ID})">
+                                <i class="fas fa-book"></i>
+                                Manage Subjects
+                            </a>
+                            <a href="/students.html?class=${cls.CLASS_ID}" class="action-item">
+                                <i class="fas fa-users"></i>
+                                View Students
+                            </a>
+                            <a href="/reports.html?class=${cls.CLASS_ID}" class="action-item">
+                                <i class="fas fa-chart-line"></i>
+                                Class Report
+                            </a>
+                            <a href="#" class="action-item danger" onclick="deleteClass(${cls.CLASS_ID})">
+                                <i class="fas fa-trash"></i>
+                                Delete Class
+                            </a>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading classes:', error);
+        showToast('Failed to load classes', 'error');
+    }
+}
+
+// Load subjects
+async function loadSubjects() {
+    try {
+        const subjects = await fetchJson('/api/classes/subjects');
+        const container = document.getElementById('subjects-list');
+        
+        if (subjects.length === 0) {
+            container.innerHTML = `
+                <div class="empty-state">
+                    <i class="fas fa-book"></i>
+                    <h3>No subjects found</h3>
+                    <p>Create your first subject to get started.</p>
+                </div>
+            `;
+            return;
+        }
+        
+        container.innerHTML = subjects.map(subject => `
+            <div class="subject-card">
+                <h5>${subject.NAME}</h5>
+                <p><strong>Code:</strong> ${subject.CODE || 'N/A'}</p>
+                <p><strong>Class:</strong> ${subject.CLASS_NAME || 'N/A'}</p>
+                <p><strong>Description:</strong> ${subject.DESCRIPTION || 'No description'}</p>
+                <div class="subject-actions-card">
+                    <button class="btn btn-primary btn-sm" onclick="editSubject(${subject.SUBJECT_ID})">
+                        <i class="fas fa-edit"></i> Edit
+                    </button>
+                    <button class="btn btn-danger btn-sm" onclick="deleteSubject(${subject.SUBJECT_ID})">
+                        <i class="fas fa-trash"></i> Delete
+                    </button>
+                </div>
+            </div>
+        `).join('');
+        
+    } catch (error) {
+        console.error('Error loading subjects:', error);
+        showToast('Failed to load subjects', 'error');
+    }
+}
+
+// Load classes for subject form
+async function loadClassesForSubject() {
+    try {
+        const classes = await fetchJson('/api/classes');
+        const select = document.getElementById('subjectClass');
+        
+        select.innerHTML = '<option value="">Select a class</option>' + 
+            classes.map(cls => `<option value="${cls.CLASS_ID}">${cls.NAME}</option>`).join('');
+    } catch (error) {
+        console.error('Error loading classes for subject form:', error);
+    }
+}
+
+// Toggle action menu
+function toggleActionMenu(classId) {
+    // Close all other menus
+    document.querySelectorAll('.action-dropdown').forEach(menu => {
+        if (menu.id !== `menu-${classId}`) {
+            menu.classList.remove('show');
+        }
+    });
+    
+    // Toggle current menu
+    const menu = document.getElementById(`menu-${classId}`);
+    menu.classList.toggle('show');
+}
+
+// Close action menus when clicking outside
+document.addEventListener('click', (e) => {
+    if (!e.target.closest('.action-menu')) {
+        document.querySelectorAll('.action-dropdown').forEach(menu => {
+            menu.classList.remove('show');
+        });
+    }
 });
 
-loadClasses();
+// Edit class
+async function editClass(id) {
+    try {
+        const cls = await fetchJson(`/api/classes/${id}`);
+        document.getElementById('className').value = cls.NAME;
+        document.getElementById('classDescription').value = cls.DESCRIPTION || '';
+        
+        // Scroll to form
+        document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        
+        // Focus on name field
+        document.getElementById('className').focus();
+        
+        showToast('Class loaded for editing', 'success');
+    } catch (error) {
+        console.error('Error loading class:', error);
+        showToast('Failed to load class', 'error');
+    }
+}
 
+// Delete class
+async function deleteClass(id) {
+    if (!confirm('Are you sure you want to delete this class? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        await fetchJson(`/api/classes/${id}`, { method: 'DELETE' });
+        showToast('Class deleted successfully', 'success');
+        loadClasses();
+        loadMetrics();
+    } catch (error) {
+        console.error('Error deleting class:', error);
+        showToast('Failed to delete class', 'error');
+    }
+}
 
+// Manage subjects for a class
+function manageSubjects(classId) {
+    switchTab('subjects');
+    // Filter subjects by class if needed
+    showToast('Switched to subjects tab', 'info');
+}
+
+// Edit subject
+async function editSubject(id) {
+    try {
+        const subject = await fetchJson(`/api/classes/subjects/${id}`);
+        document.getElementById('subjectName').value = subject.NAME;
+        document.getElementById('subjectCode').value = subject.CODE || '';
+        document.getElementById('subjectClass').value = subject.CLASS_ID;
+        document.getElementById('subjectDescription').value = subject.DESCRIPTION || '';
+        
+        // Scroll to form
+        document.querySelector('.form-section').scrollIntoView({ behavior: 'smooth' });
+        
+        // Focus on name field
+        document.getElementById('subjectName').focus();
+        
+        showToast('Subject loaded for editing', 'success');
+    } catch (error) {
+        console.error('Error loading subject:', error);
+        showToast('Failed to load subject', 'error');
+    }
+}
+
+// Delete subject
+async function deleteSubject(id) {
+    if (!confirm('Are you sure you want to delete this subject? This action cannot be undone.')) {
+        return;
+    }
+    
+    try {
+        await fetchJson(`/api/classes/subjects/${id}`, { method: 'DELETE' });
+        showToast('Subject deleted successfully', 'success');
+        loadSubjects();
+        loadMetrics();
+    } catch (error) {
+        console.error('Error deleting subject:', error);
+        showToast('Failed to delete subject', 'error');
+    }
+}
+
+// Save class
+async function saveClass(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('className').value;
+    const description = document.getElementById('classDescription').value;
+    
+    if (!name) {
+        showToast('Please enter a class name', 'error');
+        return;
+    }
+    
+    const classData = {
+        NAME: name,
+        DESCRIPTION: description
+    };
+    
+    try {
+        const saveBtn = document.getElementById('saveClassBtn');
+        const originalText = saveBtn.innerHTML;
+        
+        // Show loading state
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        
+        await fetchJson('/api/classes', {
+            method: 'POST',
+            body: JSON.stringify(classData)
+        });
+        
+        showToast('Class created successfully!', 'success');
+        document.getElementById('class-form').reset();
+        loadClasses();
+        loadMetrics();
+        
+    } catch (error) {
+        console.error('Error saving class:', error);
+        showToast(error.message || 'Failed to create class', 'error');
+    } finally {
+        // Reset button state
+        const saveBtn = document.getElementById('saveClassBtn');
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Create Class';
+    }
+}
+
+// Save subject
+async function saveSubject(event) {
+    event.preventDefault();
+    
+    const name = document.getElementById('subjectName').value;
+    const code = document.getElementById('subjectCode').value;
+    const classId = document.getElementById('subjectClass').value;
+    const description = document.getElementById('subjectDescription').value;
+    
+    if (!name || !classId) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    const subjectData = {
+        NAME: name,
+        CODE: code,
+        CLASS_ID: classId,
+        DESCRIPTION: description
+    };
+    
+    try {
+        const saveBtn = document.getElementById('saveSubjectBtn');
+        const originalText = saveBtn.innerHTML;
+        
+        // Show loading state
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating...';
+        
+        await fetchJson('/api/classes/subjects', {
+            method: 'POST',
+            body: JSON.stringify(subjectData)
+        });
+        
+        showToast('Subject created successfully!', 'success');
+        document.getElementById('subject-form').reset();
+        loadSubjects();
+        loadMetrics();
+        
+    } catch (error) {
+        console.error('Error saving subject:', error);
+        showToast(error.message || 'Failed to create subject', 'error');
+    } finally {
+        // Reset button state
+        const saveBtn = document.getElementById('saveSubjectBtn');
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fas fa-save"></i> Create Subject';
+    }
+}
+
+// Clear forms
+function clearClassForm() {
+    document.getElementById('class-form').reset();
+    showToast('Form cleared', 'success');
+}
+
+function clearSubjectForm() {
+    document.getElementById('subject-form').reset();
+    showToast('Form cleared', 'success');
+}
+
+// Refresh data
+function refreshClasses() {
+    loadClasses();
+    showToast('Classes refreshed', 'success');
+}
+
+function refreshSubjects() {
+    loadSubjects();
+    showToast('Subjects refreshed', 'success');
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+    // Form submissions
+    document.getElementById('class-form').addEventListener('submit', saveClass);
+    document.getElementById('subject-form').addEventListener('submit', saveSubject);
+    
+    // Button events
+    document.getElementById('clearClassBtn').addEventListener('click', clearClassForm);
+    document.getElementById('clearSubjectBtn').addEventListener('click', clearSubjectForm);
+    document.getElementById('refreshClassesBtn').addEventListener('click', refreshClasses);
+    document.getElementById('refreshSubjectsBtn').addEventListener('click', refreshSubjects);
+    
+    // Load initial data
+    loadMetrics();
+    loadClasses();
+    loadClassesForSubject();
+});

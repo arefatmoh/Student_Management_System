@@ -1,48 +1,524 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-	<meta charset="utf-8" />
-	<meta name="viewport" content="width=device-width, initial-scale=1" />
-	<title>Classes & Subjects</title>
-	<link rel="stylesheet" href="/styles.css" />
-<script src="/js/util.js"></script>
-<script src="/js/auth-guard.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classes & Subjects - Student Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--warning-600) 0%, var(--warning-800) 100%);
+            color: white;
+            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        }
+        
+        .page-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin: 0;
+        }
+        
+        .form-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            margin-bottom: var(--space-8);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .form-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-6);
+        }
+        
+        .form-actions {
+            display: flex;
+            gap: var(--space-4);
+            flex-wrap: wrap;
+        }
+        
+        .table-section {
+            background: white;
+            padding: var(--space-8);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+        }
+        
+        .table-section h3 {
+            color: var(--gray-900);
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: var(--space-6);
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+        
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-6);
+            flex-wrap: wrap;
+            gap: var(--space-4);
+        }
+        
+        .table-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+        
+        .class-id {
+            background: var(--warning-100);
+            color: var(--warning-700);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .class-name {
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .stats-badge {
+            background: var(--primary-100);
+            color: var(--primary-700);
+            padding: var(--space-1) var(--space-2);
+            border-radius: var(--radius-sm);
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-right: var(--space-2);
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: var(--space-16) var(--space-8);
+            color: var(--gray-500);
+        }
+        
+        .empty-state i {
+            font-size: 3rem;
+            color: var(--gray-300);
+            margin-bottom: var(--space-4);
+        }
+        
+        .empty-state h3 {
+            color: var(--gray-600);
+            font-size: 1.25rem;
+            margin-bottom: var(--space-2);
+        }
+        
+        .empty-state p {
+            color: var(--gray-500);
+            margin: 0;
+        }
+        
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+        
+        .summary-card {
+            background: white;
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--gray-200);
+            text-align: center;
+        }
+        
+        .summary-card h4 {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-bottom: var(--space-2);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .summary-card .value {
+            color: var(--gray-900);
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: var(--space-1);
+        }
+        
+        .summary-card .change {
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+        
+        .summary-card .change.positive {
+            color: var(--success-600);
+        }
+        
+        .summary-card .change.negative {
+            color: var(--error-600);
+        }
+        
+        .tabs {
+            display: flex;
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: var(--space-1);
+            margin-bottom: var(--space-6);
+        }
+        
+        .tab {
+            flex: 1;
+            background: none;
+            border: none;
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--gray-600);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+        }
+        
+        .tab.active {
+            background: white;
+            color: var(--primary-600);
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .subject-form {
+            background: var(--gray-50);
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            margin-top: var(--space-6);
+        }
+        
+        .subject-form h4 {
+            color: var(--gray-900);
+            font-size: 1.125rem;
+            font-weight: 600;
+            margin-bottom: var(--space-4);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .subject-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-4);
+        }
+        
+        .subject-actions {
+            display: flex;
+            gap: var(--space-3);
+        }
+        
+        .subjects-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+        }
+        
+        .subject-card {
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            padding: var(--space-4);
+            transition: all var(--transition-normal);
+        }
+        
+        .subject-card:hover {
+            box-shadow: var(--shadow-md);
+            border-color: var(--primary-200);
+        }
+        
+        .subject-card h5 {
+            color: var(--gray-900);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+        }
+        
+        .subject-card p {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            margin: 0;
+        }
+        
+        .subject-actions-card {
+            display: flex;
+            gap: var(--space-2);
+            margin-top: var(--space-3);
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .table-header {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .summary-cards {
+                grid-template-columns: 1fr;
+            }
+            
+            .tabs {
+                flex-direction: column;
+            }
+            
+            .subject-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .subjects-list {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-	<header>
-		<h1>Classes & Subjects</h1>
-		<nav>
-			<a href="/index.html">Dashboard</a>
-			<a href="/students.html">Students</a>
-			<a href="/fees.html">Fees</a>
-            <a href="/attendance.html">Attendance</a>
-            <a href="/attendance-bulk.html">Bulk Attendance</a>
-            <a href="/reports.html">Reports</a>
-			<a href="/classes.html">Classes</a>
-			<a href="/marks.html">Marks</a>
-            <a href="/invoices.html">Invoices</a>
-            <a href="/import-export.html">Import/Export</a>
-            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
-		</nav>
-	</header>
-	<main>
-		<section class="card" style="max-width:520px;">
-			<h3>Create Class (admin)</h3>
-			<form id="class-form">
-				<input placeholder="Class name" id="className" required />
-				<button type="submit">Create</button>
-			</form>
-		</section>
-		<section>
-			<h3>Classes</h3>
-			<table>
-				<thead><tr><th>ID</th><th>Name</th><th>Sections</th><th>Subjects</th><th>Actions</th></tr></thead>
-				<tbody id="classes-body"></tbody>
-			</table>
-		</section>
-	</main>
-	<script src="/js/classes.js"></script>
-	<script>ensureAuth();</script>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <nav>
+                <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/students.html"><i class="fas fa-users"></i> Students</a>
+                <a href="/fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+                <a href="/attendance.html"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="/attendance-bulk.html"><i class="fas fa-calendar-alt"></i> Bulk Attendance</a>
+                <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                <a href="/classes.html" class="active"><i class="fas fa-school"></i> Classes</a>
+                <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
+                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
+                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="container">
+                    <h1><i class="fas fa-school"></i> Classes & Subjects</h1>
+                    <p>Manage academic classes, sections, and subject assignments</p>
+                </div>
+            </div>
+
+            <!-- Summary Cards -->
+            <div class="summary-cards">
+                <div class="summary-card">
+                    <h4><i class="fas fa-school"></i> Total Classes</h4>
+                    <div class="value" id="totalClasses">0</div>
+                    <div class="change positive" id="classesChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-book"></i> Total Subjects</h4>
+                    <div class="value" id="totalSubjects">0</div>
+                    <div class="change positive" id="subjectsChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-users"></i> Total Students</h4>
+                    <div class="value" id="totalStudents">0</div>
+                    <div class="change positive" id="studentsChange">+0%</div>
+                </div>
+                <div class="summary-card">
+                    <h4><i class="fas fa-chalkboard"></i> Active Classes</h4>
+                    <div class="value" id="activeClasses">0</div>
+                    <div class="change positive" id="activeChange">+0%</div>
+                </div>
+            </div>
+
+            <!-- Tabs -->
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('classes')">
+                    <i class="fas fa-school"></i> Classes
+                </button>
+                <button class="tab" onclick="switchTab('subjects')">
+                    <i class="fas fa-book"></i> Subjects
+                </button>
+            </div>
+
+            <!-- Classes Tab -->
+            <div id="classes-tab" class="tab-content active">
+                <!-- Create Class Form -->
+                <div class="form-section">
+                    <h3><i class="fas fa-plus-circle"></i> Create New Class</h3>
+                    <form id="class-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="className"><i class="fas fa-school"></i> Class Name</label>
+                                <input type="text" id="className" placeholder="Enter class name (e.g., Grade 1)" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="classDescription"><i class="fas fa-info-circle"></i> Description</label>
+                                <input type="text" id="classDescription" placeholder="Enter class description (optional)" />
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="saveClassBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Class
+                            </button>
+                            <button type="button" id="clearClassBtn" class="btn btn-secondary">
+                                <i class="fas fa-eraser"></i> Clear Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Classes Table -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Classes List</h3>
+                        <div class="table-actions">
+                            <button id="refreshClassesBtn" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-hashtag"></i> ID</th>
+                                    <th><i class="fas fa-school"></i> Class Name</th>
+                                    <th><i class="fas fa-info-circle"></i> Description</th>
+                                    <th><i class="fas fa-users"></i> Students</th>
+                                    <th><i class="fas fa-book"></i> Subjects</th>
+                                    <th><i class="fas fa-cog"></i> Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="classes-body">
+                                <tr>
+                                    <td colspan="6" class="empty-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Loading classes...</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Subjects Tab -->
+            <div id="subjects-tab" class="tab-content">
+                <!-- Create Subject Form -->
+                <div class="form-section">
+                    <h3><i class="fas fa-plus-circle"></i> Create New Subject</h3>
+                    <form id="subject-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label for="subjectName"><i class="fas fa-book"></i> Subject Name</label>
+                                <input type="text" id="subjectName" placeholder="Enter subject name (e.g., Mathematics)" required />
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectCode"><i class="fas fa-code"></i> Subject Code</label>
+                                <input type="text" id="subjectCode" placeholder="Enter subject code (e.g., MATH101)" />
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectClass"><i class="fas fa-school"></i> Class</label>
+                                <select id="subjectClass" required>
+                                    <option value="">Select a class</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="subjectDescription"><i class="fas fa-info-circle"></i> Description</label>
+                                <input type="text" id="subjectDescription" placeholder="Enter subject description (optional)" />
+                            </div>
+                        </div>
+                        <div class="form-actions">
+                            <button type="submit" id="saveSubjectBtn" class="btn btn-primary">
+                                <i class="fas fa-save"></i> Create Subject
+                            </button>
+                            <button type="button" id="clearSubjectBtn" class="btn btn-secondary">
+                                <i class="fas fa-eraser"></i> Clear Form
+                            </button>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- Subjects List -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Subjects List</h3>
+                        <div class="table-actions">
+                            <button id="refreshSubjectsBtn" class="btn btn-secondary">
+                                <i class="fas fa-sync-alt"></i> Refresh
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="subjects-list" class="subjects-list">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <p>Loading subjects...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="js/util.js"></script>
+    <script src="js/auth-guard.js"></script>
+    <script src="js/classes.js"></script>
 </body>
 </html>
-
