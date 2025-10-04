@@ -17,18 +17,8 @@ async function logout() {
     }
 }
 
-// Add logout button to header nav
+// Show Admin link for admins
 document.addEventListener('DOMContentLoaded', () => {
-    const nav = document.querySelector('header nav');
-    if (nav) {
-        const btn = document.createElement('button');
-        btn.textContent = 'Logout';
-        btn.className = 'secondary';
-        btn.style.marginLeft = '12px';
-        btn.addEventListener('click', logout);
-        nav.appendChild(btn);
-    }
-    // Show Admin link for admins
     apiFetch('/api/auth/me').then(me => {
         if (me.role === 'admin') {
             const link = document.getElementById('adminLink');
