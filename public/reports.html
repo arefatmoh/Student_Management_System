@@ -244,9 +244,53 @@
             to { transform: rotate(360deg); }
         }
         
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: var(--space-4);
+        }
+        
+        .header-actions {
+            display: flex;
+            gap: var(--space-3);
+            align-items: center;
+        }
+        
+        .btn-outline {
+            background: transparent;
+            border: 1px solid var(--gray-300);
+            color: var(--gray-700);
+            padding: var(--space-2) var(--space-4);
+            border-radius: var(--radius-md);
+            text-decoration: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+        }
+        
+        .btn-outline:hover {
+            background: var(--gray-50);
+            border-color: var(--gray-400);
+            color: var(--gray-900);
+        }
+        
         @media (max-width: 768px) {
             .page-header h1 {
                 font-size: 2rem;
+            }
+            
+            .header-top {
+                flex-direction: column;
+                gap: var(--space-4);
+                text-align: center;
+            }
+            
+            .header-actions {
+                justify-content: center;
             }
             
             .report-filters {
@@ -270,7 +314,13 @@
 <body>
     <header>
         <div class="container">
-            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <div class="header-top">
+                <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+                <div class="header-actions">
+                    <a href="/admin.html" id="adminLink" class="btn btn-outline hidden"><i class="fas fa-cog"></i> Admin</a>
+                    <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+                </div>
+            </div>
             <nav>
                 <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
                 <a href="/students.html"><i class="fas fa-users"></i> Students</a>
@@ -281,8 +331,6 @@
                 <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
                 <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
-                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
-                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
             </nav>
         </div>
     </header>
