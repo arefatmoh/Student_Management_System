@@ -41,6 +41,84 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
   res.json({ message: 'Deleted' });
 });
 
+// General subjects endpoint (all subjects)
+router.get('/subjects', async (req, res) => {
+  try {
+    const [rows] = await getPool().query(`
+      SELECT s.*, c.NAME as CLASS_NAME 
+      FROM Subjects s 
+      JOIN Classes c ON s.CLASS_ID = c.CLASS_ID 
+      ORDER BY s.SUBJECT_ID DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Create subject (general endpoint)
+router.post('/subjects', requireRole('admin'), async (req, res) => {
+  try {
+    const { CLASS_ID, NAME, CODE, DESCRIPTION } = req.body || {};
+    if (!CLASS_ID || !NAME) return res.status(400).json({ message: 'CLASS_ID and NAME required' });
+    await getPool().query('INSERT INTO Subjects (CLASS_ID, NAME, CODE, DESCRIPTION) VALUES (?, ?, ?, ?)', 
+      [CLASS_ID, NAME, CODE || null, DESCRIPTION || null]);
+    res.status(201).json({ CLASS_ID, NAME, CODE, DESCRIPTION });
+  } catch (err) {
+    if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Subject already exists for this class' });
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Get subject by ID
+router.get('/subjects/:id', async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [rows] = await getPool().query('SELECT * FROM Subjects WHERE SUBJECT_ID = ?', [id]);
+    if (!rows.length) return res.status(404).json({ message: 'Subject not found' });
+    res.json(rows[0]);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Update subject
+router.put('/subjects/:id', requireRole('admin'), async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const { CLASS_ID, NAME, CODE, DESCRIPTION } = req.body || {};
+    if (!CLASS_ID || !NAME) return res.status(400).json({ message: 'CLASS_ID and NAME required' });
+    
+    const [existing] = await getPool().query('SELECT * FROM Subjects WHERE SUBJECT_ID = ?', [id]);
+    if (!existing.length) return res.status(404).json({ message: 'Subject not found' });
+    
+    await getPool().query(
+      'UPDATE Subjects SET CLASS_ID=?, NAME=?, CODE=?, DESCRIPTION=? WHERE SUBJECT_ID=?',
+      [CLASS_ID, NAME, CODE || null, DESCRIPTION || null, id]
+    );
+    
+    const [rows] = await getPool().query('SELECT * FROM Subjects WHERE SUBJECT_ID = ?', [id]);
+    res.json(rows[0]);
+  } catch (err) {
+    if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Subject already exists for this class' });
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
+// Delete subject
+router.delete('/subjects/:id', requireRole('admin'), async (req, res) => {
+  try {
+    const id = Number(req.params.id);
+    const [existing] = await getPool().query('SELECT * FROM Subjects WHERE SUBJECT_ID = ?', [id]);
+    if (!existing.length) return res.status(404).json({ message: 'Subject not found' });
+    
+    await getPool().query('DELETE FROM Subjects WHERE SUBJECT_ID = ?', [id]);
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // Sections by Class
 router.get('/:classId/sections', async (req, res) => {
   const classId = Number(req.params.classId);

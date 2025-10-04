@@ -100,6 +100,8 @@ async function initDb() {
       SUBJECT_ID INT AUTO_INCREMENT PRIMARY KEY,
       CLASS_ID INT NOT NULL,
       NAME VARCHAR(50) NOT NULL,
+      CODE VARCHAR(10),
+      DESCRIPTION TEXT,
       UNIQUE KEY uniq_class_subject (CLASS_ID, NAME),
       CONSTRAINT fk_subjects_class FOREIGN KEY (CLASS_ID)
         REFERENCES Classes(CLASS_ID) ON DELETE CASCADE
@@ -167,6 +169,25 @@ async function initDb() {
     console.log('Added DESCRIPTION column to Classes table');
   } catch (error) {
     // Column already exists, ignore error
+    if (!error.message.includes('Duplicate column name')) {
+      console.log('Note: DESCRIPTION column may already exist:', error.message);
+    }
+  }
+
+  // Add CODE and DESCRIPTION columns to Subjects table if they don't exist
+  try {
+    await pool.query('ALTER TABLE Subjects ADD COLUMN CODE VARCHAR(10)');
+    console.log('Added CODE column to Subjects table');
+  } catch (error) {
+    if (!error.message.includes('Duplicate column name')) {
+      console.log('Note: CODE column may already exist:', error.message);
+    }
+  }
+
+  try {
+    await pool.query('ALTER TABLE Subjects ADD COLUMN DESCRIPTION TEXT');
+    console.log('Added DESCRIPTION column to Subjects table');
+  } catch (error) {
     if (!error.message.includes('Duplicate column name')) {
       console.log('Note: DESCRIPTION column may already exist:', error.message);
     }
