@@ -103,7 +103,6 @@ async function loadClasses() {
                 <td><span class="class-name">${cls.NAME}</span></td>
                 <td>${cls.DESCRIPTION || '<span class="text-muted">No description</span>'}</td>
                 <td><span class="stats-badge">${cls.STUDENT_COUNT || 0} students</span></td>
-                <td><span class="stats-badge">${cls.SUBJECT_COUNT || 0} subjects</span></td>
                 <td>
                     <div class="action-menu">
                         <button class="action-trigger" onclick="toggleActionMenu(${cls.CLASS_ID})">
@@ -183,18 +182,6 @@ async function loadSubjects() {
     }
 }
 
-// Load classes for subject form
-async function loadClassesForSubject() {
-    try {
-        const classes = await fetchJson('/api/classes');
-        const select = document.getElementById('subjectClass');
-        
-        select.innerHTML = '<option value="">Select a class</option>' + 
-            classes.map(cls => `<option value="${cls.CLASS_ID}">${cls.NAME}</option>`).join('');
-    } catch (error) {
-        console.error('Error loading classes for subject form:', error);
-    }
-}
 
 // Toggle action menu
 function toggleActionMenu(classId) {
@@ -354,18 +341,16 @@ async function saveSubject(event) {
     
     const name = document.getElementById('subjectName').value;
     const code = document.getElementById('subjectCode').value;
-    const classId = document.getElementById('subjectClass').value;
     const description = document.getElementById('subjectDescription').value;
     
-    if (!name || !classId) {
-        showToast('Please fill in all required fields', 'error');
+    if (!name) {
+        showToast('Please enter subject name', 'error');
         return;
     }
     
     const subjectData = {
         NAME: name,
         CODE: code,
-        CLASS_ID: classId,
         DESCRIPTION: description
     };
     
@@ -435,5 +420,4 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load initial data
     loadMetrics();
     loadClasses();
-    loadClassesForSubject();
 });

@@ -98,13 +98,9 @@ async function initDb() {
   const createSubjects = `
     CREATE TABLE IF NOT EXISTS Subjects (
       SUBJECT_ID INT AUTO_INCREMENT PRIMARY KEY,
-      CLASS_ID INT NOT NULL,
-      NAME VARCHAR(50) NOT NULL,
+      NAME VARCHAR(50) NOT NULL UNIQUE,
       CODE VARCHAR(10),
-      DESCRIPTION TEXT,
-      UNIQUE KEY uniq_class_subject (CLASS_ID, NAME),
-      CONSTRAINT fk_subjects_class FOREIGN KEY (CLASS_ID)
-        REFERENCES Classes(CLASS_ID) ON DELETE CASCADE
+      DESCRIPTION TEXT
     ) ENGINE=InnoDB;
   `;
 
@@ -193,6 +189,38 @@ async function initDb() {
     }
   }
 
+  // Remove CLASS_ID dependency from Subjects table
+  try {
+    // First, remove any foreign key constraints
+    await pool.query('ALTER TABLE Subjects DROP FOREIGN KEY fk_subjects_class');
+    console.log('Removed foreign key constraint from Subjects table');
+  } catch (error) {
+    // Foreign key might not exist, ignore error
+    console.log('Note: Foreign key constraint may not exist:', error.message);
+  }
+
+  try {
+    // Remove the CLASS_ID column
+    await pool.query('ALTER TABLE Subjects DROP COLUMN CLASS_ID');
+    console.log('Removed CLASS_ID column from Subjects table');
+  } catch (error) {
+    // Column might not exist, ignore error
+    if (!error.message.includes("doesn't exist")) {
+      console.log('Note: CLASS_ID column may not exist:', error.message);
+    }
+  }
+
+  try {
+    // Make NAME unique since subjects are no longer class-specific
+    await pool.query('ALTER TABLE Subjects ADD UNIQUE KEY unique_subject_name (NAME)');
+    console.log('Added unique constraint to Subjects NAME column');
+  } catch (error) {
+    // Constraint might already exist, ignore error
+    if (!error.message.includes('Duplicate key name')) {
+      console.log('Note: Unique constraint may already exist:', error.message);
+    }
+  }
+
   // Seed initial data
   try {
     const bcrypt = require('bcrypt');
@@ -224,12 +252,11 @@ async function initDb() {
     
     const [subjectCount] = await pool.query('SELECT COUNT(*) as count FROM Subjects');
     if (subjectCount[0].count === 0) {
-      const [classes] = await pool.query('SELECT CLASS_ID FROM Classes LIMIT 3');
-      for (const cls of classes) {
-        await pool.query('INSERT INTO Subjects (CLASS_ID, NAME) VALUES (?, ?)', [cls.CLASS_ID, 'Mathematics']);
-        await pool.query('INSERT INTO Subjects (CLASS_ID, NAME) VALUES (?, ?)', [cls.CLASS_ID, 'English']);
-        await pool.query('INSERT INTO Subjects (CLASS_ID, NAME) VALUES (?, ?)', [cls.CLASS_ID, 'Science']);
-      }
+      await pool.query('INSERT INTO Subjects (NAME, CODE, DESCRIPTION) VALUES (?, ?, ?)', ['Mathematics', 'MATH', 'Core mathematics curriculum']);
+      await pool.query('INSERT INTO Subjects (NAME, CODE, DESCRIPTION) VALUES (?, ?, ?)', ['English', 'ENG', 'English language and literature']);
+      await pool.query('INSERT INTO Subjects (NAME, CODE, DESCRIPTION) VALUES (?, ?, ?)', ['Science', 'SCI', 'General science curriculum']);
+      await pool.query('INSERT INTO Subjects (NAME, CODE, DESCRIPTION) VALUES (?, ?, ?)', ['Social Studies', 'SOC', 'History, geography, and social sciences']);
+      await pool.query('INSERT INTO Subjects (NAME, CODE, DESCRIPTION) VALUES (?, ?, ?)', ['Physical Education', 'PE', 'Physical education and sports']);
       console.log('Sample subjects created');
     }
   } catch (error) {

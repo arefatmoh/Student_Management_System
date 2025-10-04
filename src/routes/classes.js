@@ -9,11 +9,9 @@ router.get('/', async (req, res) => {
     const [rows] = await getPool().query(`
       SELECT 
         c.*,
-        COUNT(DISTINCT s.STUDENT_ID) as STUDENT_COUNT,
-        COUNT(DISTINCT sub.SUBJECT_ID) as SUBJECT_COUNT
+        COUNT(DISTINCT s.STUDENT_ID) as STUDENT_COUNT
       FROM Classes c
       LEFT JOIN Students s ON c.NAME = s.CLASS
-      LEFT JOIN Subjects sub ON c.CLASS_ID = sub.CLASS_ID
       GROUP BY c.CLASS_ID, c.NAME, c.DESCRIPTION
       ORDER BY c.CLASS_ID DESC
     `);
@@ -45,10 +43,8 @@ router.delete('/:id', requireRole('admin'), async (req, res) => {
 router.get('/subjects', async (req, res) => {
   try {
     const [rows] = await getPool().query(`
-      SELECT s.*, c.NAME as CLASS_NAME 
-      FROM Subjects s 
-      JOIN Classes c ON s.CLASS_ID = c.CLASS_ID 
-      ORDER BY s.SUBJECT_ID DESC
+      SELECT * FROM Subjects 
+      ORDER BY SUBJECT_ID DESC
     `);
     res.json(rows);
   } catch (err) {
@@ -59,13 +55,13 @@ router.get('/subjects', async (req, res) => {
 // Create subject (general endpoint)
 router.post('/subjects', requireRole('admin'), async (req, res) => {
   try {
-    const { CLASS_ID, NAME, CODE, DESCRIPTION } = req.body || {};
-    if (!CLASS_ID || !NAME) return res.status(400).json({ message: 'CLASS_ID and NAME required' });
-    await getPool().query('INSERT INTO Subjects (CLASS_ID, NAME, CODE, DESCRIPTION) VALUES (?, ?, ?, ?)', 
-      [CLASS_ID, NAME, CODE || null, DESCRIPTION || null]);
-    res.status(201).json({ CLASS_ID, NAME, CODE, DESCRIPTION });
+    const { NAME, CODE, DESCRIPTION } = req.body || {};
+    if (!NAME) return res.status(400).json({ message: 'NAME required' });
+    await getPool().query('INSERT INTO Subjects (NAME, CODE, DESCRIPTION) VALUES (?, ?, ?)', 
+      [NAME, CODE || null, DESCRIPTION || null]);
+    res.status(201).json({ NAME, CODE, DESCRIPTION });
   } catch (err) {
-    if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Subject already exists for this class' });
+    if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Subject already exists' });
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
@@ -86,21 +82,21 @@ router.get('/subjects/:id', async (req, res) => {
 router.put('/subjects/:id', requireRole('admin'), async (req, res) => {
   try {
     const id = Number(req.params.id);
-    const { CLASS_ID, NAME, CODE, DESCRIPTION } = req.body || {};
-    if (!CLASS_ID || !NAME) return res.status(400).json({ message: 'CLASS_ID and NAME required' });
+    const { NAME, CODE, DESCRIPTION } = req.body || {};
+    if (!NAME) return res.status(400).json({ message: 'NAME required' });
     
     const [existing] = await getPool().query('SELECT * FROM Subjects WHERE SUBJECT_ID = ?', [id]);
     if (!existing.length) return res.status(404).json({ message: 'Subject not found' });
     
     await getPool().query(
-      'UPDATE Subjects SET CLASS_ID=?, NAME=?, CODE=?, DESCRIPTION=? WHERE SUBJECT_ID=?',
-      [CLASS_ID, NAME, CODE || null, DESCRIPTION || null, id]
+      'UPDATE Subjects SET NAME=?, CODE=?, DESCRIPTION=? WHERE SUBJECT_ID=?',
+      [NAME, CODE || null, DESCRIPTION || null, id]
     );
     
     const [rows] = await getPool().query('SELECT * FROM Subjects WHERE SUBJECT_ID = ?', [id]);
     res.json(rows[0]);
   } catch (err) {
-    if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Subject already exists for this class' });
+    if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Subject already exists' });
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
