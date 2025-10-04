@@ -102,8 +102,8 @@ async function loadClasses() {
                 <td><span class="class-id">#${cls.CLASS_ID}</span></td>
                 <td><span class="class-name">${cls.NAME}</span></td>
                 <td>${cls.DESCRIPTION || '<span class="text-muted">No description</span>'}</td>
-                <td><span class="stats-badge">${cls.studentCount || 0} students</span></td>
-                <td><span class="stats-badge">${cls.subjectCount || 0} subjects</span></td>
+                <td><span class="stats-badge">${cls.STUDENT_COUNT || 0} students</span></td>
+                <td><span class="stats-badge">${cls.SUBJECT_COUNT || 0} subjects</span></td>
                 <td>
                     <div class="action-menu">
                         <button class="action-trigger" onclick="toggleActionMenu(${cls.CLASS_ID})">

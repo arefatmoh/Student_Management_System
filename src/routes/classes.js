@@ -5,16 +5,30 @@ const { requireRole } = require('../middlewares/auth');
 
 // Classes CRUD (admin only for create/delete)
 router.get('/', async (req, res) => {
-  const [rows] = await getPool().query('SELECT * FROM Classes ORDER BY CLASS_ID DESC');
-  res.json(rows);
+  try {
+    const [rows] = await getPool().query(`
+      SELECT 
+        c.*,
+        COUNT(DISTINCT s.STUDENT_ID) as STUDENT_COUNT,
+        COUNT(DISTINCT sub.SUBJECT_ID) as SUBJECT_COUNT
+      FROM Classes c
+      LEFT JOIN Students s ON c.NAME = s.CLASS
+      LEFT JOIN Subjects sub ON c.CLASS_ID = sub.CLASS_ID
+      GROUP BY c.CLASS_ID, c.NAME, c.DESCRIPTION
+      ORDER BY c.CLASS_ID DESC
+    `);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
 });
 
 router.post('/', requireRole('admin'), async (req, res) => {
   try {
-    const { NAME } = req.body || {};
+    const { NAME, DESCRIPTION } = req.body || {};
     if (!NAME) return res.status(400).json({ message: 'NAME required' });
-    await getPool().query('INSERT INTO Classes (NAME) VALUES (?)', [NAME]);
-    res.status(201).json({ NAME });
+    await getPool().query('INSERT INTO Classes (NAME, DESCRIPTION) VALUES (?, ?)', [NAME, DESCRIPTION || null]);
+    res.status(201).json({ NAME, DESCRIPTION });
   } catch (err) {
     if (err && err.code === 'ER_DUP_ENTRY') return res.status(409).json({ message: 'Class already exists' });
     res.status(500).json({ message: 'Server error', error: err.message });

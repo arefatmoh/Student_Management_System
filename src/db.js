@@ -6,15 +6,15 @@ let pool;
 
 function createPool() {
   return mysql.createPool({
-    host: process.env.DB_HOST,
-    user: process.env.DB_USER,
-    password: process.env.DB_PASSWORD,
-    database: process.env.DB_NAME,
-    port: Number(process.env.DB_PORT || 3306),
-    waitForConnections: true,
-    connectionLimit: 10,
-    queueLimit: 0,
-  });
+  host: process.env.DB_HOST,
+  user: process.env.DB_USER,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_NAME,
+  port: Number(process.env.DB_PORT || 3306),
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+});
 }
 
 async function ensureDatabaseExists() {
@@ -79,7 +79,8 @@ async function initDb() {
   const createClasses = `
     CREATE TABLE IF NOT EXISTS Classes (
       CLASS_ID INT AUTO_INCREMENT PRIMARY KEY,
-      NAME VARCHAR(50) NOT NULL UNIQUE
+      NAME VARCHAR(50) NOT NULL UNIQUE,
+      DESCRIPTION TEXT
     ) ENGINE=InnoDB;
   `;
 
@@ -159,6 +160,17 @@ async function initDb() {
   await pool.query(createMarks);
   await pool.query(createInvoices);
   await pool.query(createPayments);
+
+  // Add DESCRIPTION column to Classes table if it doesn't exist
+  try {
+    await pool.query('ALTER TABLE Classes ADD COLUMN DESCRIPTION TEXT');
+    console.log('Added DESCRIPTION column to Classes table');
+  } catch (error) {
+    // Column already exists, ignore error
+    if (!error.message.includes('Duplicate column name')) {
+      console.log('Note: DESCRIPTION column may already exist:', error.message);
+    }
+  }
 
   // Seed initial data
   try {
