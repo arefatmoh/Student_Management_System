@@ -7,6 +7,36 @@ let total = 0;
 let limit = 10;
 let currentView = 'table';
 
+// Load classes for dropdown
+async function loadClasses() {
+    try {
+        const classes = await fetchJson('/api/classes');
+        
+        // Populate class dropdown in form
+        const classSelect = document.getElementById('class');
+        classSelect.innerHTML = '<option value="">Select a class...</option>';
+        classes.forEach(cls => {
+            const option = document.createElement('option');
+            option.value = cls.NAME;
+            option.textContent = cls.NAME;
+            classSelect.appendChild(option);
+        });
+        
+        // Populate class filter dropdown
+        const searchClassSelect = document.getElementById('searchClass');
+        searchClassSelect.innerHTML = '<option value="">All Classes</option>';
+        classes.forEach(cls => {
+            const option = document.createElement('option');
+            option.value = cls.NAME;
+            option.textContent = cls.NAME;
+            searchClassSelect.appendChild(option);
+        });
+    } catch (error) {
+        console.error('Error loading classes:', error);
+        showToast('Failed to load classes', 'error');
+    }
+}
+
 // Load students with modern interface
 async function loadStudents() {
     const name = document.getElementById('searchName').value || '';
@@ -359,7 +389,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('refreshBtn').addEventListener('click', refreshData);
     
     // Search on Enter key
-    ['searchName', 'searchRoll', 'searchClass'].forEach(id => {
+    ['searchName', 'searchRoll'].forEach(id => {
         document.getElementById(id).addEventListener('keypress', (e) => {
             if (e.key === 'Enter') {
                 searchStudents();
@@ -367,6 +397,10 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
+    // Search on dropdown change
+    document.getElementById('searchClass').addEventListener('change', searchStudents);
+    
     // Load initial data
+    loadClasses();
     loadStudents();
 });
