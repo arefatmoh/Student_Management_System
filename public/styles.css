@@ -26,16 +26,39 @@
     --gray-900: #111827;
     
     --success-50: #f0fdf4;
+    --success-100: #dcfce7;
     --success-500: #22c55e;
     --success-600: #16a34a;
+    --success-700: #15803d;
+    --success-800: #166534;
+    
+    --info-50: #f0f9ff;
+    --info-100: #e0f2fe;
+    --info-500: #0ea5e9;
+    --info-600: #0284c7;
+    --info-700: #0369a1;
+    --info-800: #075985;
     
     --warning-50: #fffbeb;
+    --warning-100: #fef3c7;
     --warning-500: #f59e0b;
     --warning-600: #d97706;
+    --warning-700: #b45309;
+    --warning-800: #92400e;
     
     --error-50: #fef2f2;
+    --error-100: #fee2e2;
     --error-500: #ef4444;
     --error-600: #dc2626;
+    --error-700: #b91c1c;
+    --error-800: #991b1b;
+    
+    --purple-50: #faf5ff;
+    --purple-100: #f3e8ff;
+    --purple-500: #a855f7;
+    --purple-600: #9333ea;
+    --purple-700: #7c3aed;
+    --purple-800: #6b21a8;
     
     /* Typography */
     --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
