@@ -5,26 +5,71 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Invoice Management - Student Management System</title>
     <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        .page-header {
+            background: linear-gradient(135deg, var(--primary-600) 0%, var(--primary-800) 100%);
+            color: white;
+            padding: var(--space-8) 0;
+            margin-bottom: var(--space-8);
+            border-radius: 0 0 var(--radius-2xl) var(--radius-2xl);
+        }
+        
+        .page-header h1 {
+            color: white;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: var(--space-2);
+            display: flex;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .page-header p {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1.125rem;
+            margin: 0;
+        }
+        
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
 </head>
 <body>
     <header>
-        <h1>Invoice Management</h1>
-        <nav>
-            <a href="/index.html">Dashboard</a>
-            <a href="/students.html">Students</a>
-            <a href="/fees.html">Fees</a>
-            <a href="/attendance.html">Attendance</a>
-            <a href="/reports.html">Reports</a>
-            <a href="/classes.html">Classes</a>
-            <a href="/marks.html">Marks</a>
-            <a href="/invoices.html">Invoices</a>
-            <a href="/admin.html" id="adminLink" class="hidden">Admin</a>
-            <button onclick="logout()" class="btn btn-secondary">Logout</button>
-        </nav>
+        <div class="container">
+            <h1><i class="fas fa-graduation-cap"></i> Student Management System</h1>
+            <nav>
+                <a href="/index.html"><i class="fas fa-home"></i> Dashboard</a>
+                <a href="/students.html"><i class="fas fa-users"></i> Students</a>
+                <a href="/fees.html"><i class="fas fa-dollar-sign"></i> Fees</a>
+                <a href="/attendance.html"><i class="fas fa-calendar-check"></i> Attendance</a>
+                <a href="/attendance-bulk.html"><i class="fas fa-calendar-alt"></i> Bulk Attendance</a>
+                <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
+                <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
+                <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
+                <a href="/invoices.html" class="active"><i class="fas fa-file-invoice"></i> Invoices</a>
+                <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
+                <a href="/admin.html" id="adminLink" class="hidden"><i class="fas fa-cog"></i> Admin</a>
+                <button onclick="logout()" class="btn btn-secondary"><i class="fas fa-sign-out-alt"></i> Logout</button>
+            </nav>
+        </div>
     </header>
 
     <main>
-        <!-- Invoice Form -->
+        <div class="container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <div class="container">
+                    <h1><i class="fas fa-file-invoice"></i> Invoice Management</h1>
+                    <p>Create and manage student invoices and payment tracking</p>
+                </div>
+            </div>
+
+            <!-- Invoice Form -->
         <section class="card">
             <h2>Create New Invoice</h2>
             <form id="invoice-form">
