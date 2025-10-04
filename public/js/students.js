@@ -296,10 +296,10 @@ async function saveStudent(event) {
     const formData = new FormData(form);
     
     const studentData = {
-        name: document.getElementById('name').value,
-        rollNumber: document.getElementById('roll').value,
-        class: document.getElementById('class').value,
-        parentContact: document.getElementById('contact').value
+        NAME: document.getElementById('name').value,
+        ROLL_NUMBER: document.getElementById('roll').value,
+        CLASS: document.getElementById('class').value,
+        PARENT_CONTACT: document.getElementById('contact').value
     };
     
     const studentId = document.getElementById('studentId').value;
