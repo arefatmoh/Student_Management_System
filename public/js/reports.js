@@ -5,31 +5,40 @@ async function fetchJson(url, options) {
 // Load initial metrics
 async function loadMetrics() {
     try {
-        // Load students count
+        // Load students count (handle array or paginated)
         const students = await fetchJson('/api/students?limit=1');
-        const totalStudents = students.total || 0;
+        const totalStudents = (students && typeof students.total === 'number') ? students.total : (Array.isArray(students) ? students.length : (students && students.data ? students.data.length : 0));
         document.getElementById('totalStudents').textContent = totalStudents;
         updateChangeIndicator('studentsChange', totalStudents, totalStudents - 5);
         
         // Load attendance rate
         const today = new Date().toISOString().slice(0, 10);
         const attendance = await fetchJson(`/api/attendance?from=${today}&to=${today}`);
-        const present = attendance.data?.filter(a => a.STATUS === 'Present').length || 0;
-        const absent = attendance.data?.filter(a => a.STATUS === 'Absent').length || 0;
+        const attArr = attendance && attendance.data ? attendance.data : (Array.isArray(attendance) ? attendance : []);
+        const present = attArr.filter(a => a.STATUS === 'Present').length || 0;
+        const absent = attArr.filter(a => a.STATUS === 'Absent').length || 0;
         const attendanceRate = (present + absent) > 0 ? Math.round((present / (present + absent)) * 100) : 0;
         document.getElementById('attendanceRate').textContent = `${attendanceRate}%`;
         updateChangeIndicator('attendanceChange', attendanceRate, attendanceRate - 5);
         
         // Load fees data
         const fees = await fetchJson('/api/reports/fees');
-        const totalRevenue = fees.totalPaid || 0;
+        const totalRevenue = (fees && typeof fees.total !== 'undefined') ? fees.total : (fees && fees.totalPaid ? fees.totalPaid : 0);
         document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
         updateChangeIndicator('revenueChange', totalRevenue, totalRevenue - 100);
         
-        // Mock average grade (since we don't have marks API yet)
-        const averageGrade = 85;
+        // Average grade from marks API
+        const marks = await fetchJson('/api/marks');
+        const marksArr = marks && marks.data ? marks.data : (Array.isArray(marks) ? marks : []);
+        let sumPct = 0, cntPct = 0;
+        marksArr.forEach(m => {
+            const max = Number(m.MAX_SCORE || 0);
+            const score = Number(m.SCORE || 0);
+            if (max > 0) { sumPct += Math.round((score / max) * 100); cntPct++; }
+        });
+        const averageGrade = cntPct > 0 ? Math.round(sumPct / cntPct) : 0;
         document.getElementById('averageGrade').textContent = `${averageGrade}%`;
-        updateChangeIndicator('gradeChange', averageGrade, averageGrade - 3);
+        updateChangeIndicator('gradeChange', averageGrade, Math.max(averageGrade - 1, 0));
         
     } catch (error) {
         console.error('Error loading metrics:', error);

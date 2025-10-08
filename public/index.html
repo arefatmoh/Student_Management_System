@@ -336,7 +336,6 @@
                 <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
                 <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
                 <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
-                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
             </nav>
         </div>
@@ -379,9 +378,9 @@
                         <i class="fas fa-calendar-check"></i>
                         <h4>Mark Attendance</h4>
                     </a>
-                    <a href="/invoices.html" class="quick-action">
-                        <i class="fas fa-file-invoice-dollar"></i>
-                        <h4>Create Invoice</h4>
+                    <a href="/fees.html" class="quick-action">
+                        <i class="fas fa-dollar-sign"></i>
+                        <h4>Record Fee Payment</h4>
                     </a>
                     <a href="/reports.html" class="quick-action">
                         <i class="fas fa-chart-line"></i>
@@ -401,10 +400,10 @@
                     </div>
                 </div>
                 <div class="kpi-card">
-                    <h3><i class="fas fa-exclamation-triangle"></i> Pending Fees</h3>
-                    <div class="kpi-value" id="kpi-pending">-</div>
+                    <h3><i class="fas fa-user-check"></i> Students Paid This Month</h3>
+                    <div class="kpi-value" id="kpi-students-paid">-</div>
                     <div class="kpi-change" id="fees-change">
-                        <i class="fas fa-arrow-down"></i>
+                        <i class="fas fa-arrow-up"></i>
                         <span>Loading...</span>
                     </div>
                 </div>
@@ -413,14 +412,6 @@
                     <div class="kpi-value" id="kpi-present">-</div>
                     <div class="kpi-change" id="attendance-change">
                         <i class="fas fa-arrow-up"></i>
-                        <span>Loading...</span>
-                    </div>
-                </div>
-                <div class="kpi-card">
-                    <h3><i class="fas fa-exclamation-circle"></i> Overdue Invoices</h3>
-                    <div class="kpi-value" id="kpi-overdue">-</div>
-                    <div class="kpi-change" id="overdue-change">
-                        <i class="fas fa-arrow-down"></i>
                         <span>Loading...</span>
                     </div>
                 </div>
@@ -460,11 +451,6 @@
                     <a href="/attendance.html" class="btn btn-primary">Mark Attendance</a>
                 </div>
                 <div class="card feature-card">
-                    <h3><i class="fas fa-calendar-alt"></i> Bulk Attendance</h3>
-                    <p>Efficiently mark attendance for multiple students with calendar view and bulk operations.</p>
-                    <a href="/attendance-bulk.html" class="btn btn-primary">Bulk Attendance</a>
-                </div>
-                <div class="card feature-card">
                     <h3><i class="fas fa-chart-bar"></i> Reports</h3>
                     <p>View comprehensive reports and analytics for students, attendance, and academic performance.</p>
                     <a href="/reports.html" class="btn btn-primary">View Reports</a>
@@ -478,11 +464,6 @@
                     <h3><i class="fas fa-graduation-cap"></i> Grades & Marks</h3>
                     <p>Record and track student grades with comprehensive academic performance monitoring.</p>
                     <a href="/marks.html" class="btn btn-primary">Manage Marks</a>
-                </div>
-                <div class="card feature-card">
-                    <h3><i class="fas fa-file-invoice"></i> Invoices</h3>
-                    <p>Create professional invoices and track payments with automated due date management.</p>
-                    <a href="/invoices.html" class="btn btn-primary">Manage Invoices</a>
                 </div>
                 <div class="card feature-card">
                     <h3><i class="fas fa-download"></i> Import/Export</h3>

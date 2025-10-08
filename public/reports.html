@@ -329,7 +329,6 @@
                 <a href="/reports.html" class="active"><i class="fas fa-chart-bar"></i> Reports</a>
                 <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
                 <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
-                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
             </nav>
         </div>
@@ -375,7 +374,9 @@
                 <div class="report-filters">
                     <div class="form-group">
                         <label for="attClass">Class</label>
-                        <input type="text" id="attClass" placeholder="Enter class (e.g., Grade 1)" />
+                        <select id="attClass">
+                            <option value="">All Classes</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="attFrom">From Date</label>
@@ -409,7 +410,9 @@
                 <div class="report-filters">
                     <div class="form-group">
                         <label for="feeClass">Class</label>
-                        <input type="text" id="feeClass" placeholder="Enter class (e.g., Grade 1)" />
+                        <select id="feeClass">
+                            <option value="">All Classes</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="feeFrom">From Date</label>
@@ -437,35 +440,7 @@
                 </div>
             </div>
 
-            <!-- Performance Report -->
-            <div class="report-section">
-                <h3><i class="fas fa-graduation-cap"></i> Performance Report</h3>
-                <div class="report-filters">
-                    <div class="form-group">
-                        <label for="perfClass">Class</label>
-                        <input type="text" id="perfClass" placeholder="Enter class (e.g., Grade 1)" />
-                    </div>
-                    <div class="form-group">
-                        <label for="perfSubject">Subject</label>
-                        <input type="text" id="perfSubject" placeholder="Enter subject (optional)" />
-                    </div>
-                </div>
-                <div class="report-actions">
-                    <button id="perfRun" class="btn btn-primary">
-                        <i class="fas fa-play"></i> Generate Report
-                    </button>
-                    <button id="perfExport" class="btn btn-secondary">
-                        <i class="fas fa-download"></i> Export CSV
-                    </button>
-                </div>
-                <div class="report-content" id="perfResult">
-                    <div class="empty-state">
-                        <i class="fas fa-chart-bar"></i>
-                        <h3>No data selected</h3>
-                        <p>Select filters and click "Generate Report" to view performance data.</p>
-                    </div>
-                </div>
-            </div>
+            
 
             <!-- Custom Report -->
             <div class="report-section">
@@ -482,7 +457,9 @@
                     </div>
                     <div class="form-group">
                         <label for="customClass">Class</label>
-                        <input type="text" id="customClass" placeholder="Enter class (optional)" />
+                        <select id="customClass">
+                            <option value="">All Classes</option>
+                        </select>
                     </div>
                     <div class="form-group">
                         <label for="customFrom">From Date</label>

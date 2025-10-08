@@ -57,6 +57,129 @@
             margin-bottom: var(--space-6);
         }
         
+        /* Live search dropdown */
+        .dropdown-results {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            max-height: 220px;
+            overflow: auto;
+            z-index: 1000;
+        }
+        .dropdown-item {
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background: var(--gray-50);
+        }
+        /* Ensure dropdown anchors to input container */
+        .form-group { position: relative; }
+        
+        /* Status Toggle Component */
+        .status-toggle {
+            display: flex;
+            background: var(--gray-100);
+            border-radius: var(--radius-lg);
+            padding: 4px;
+            border: 1px solid var(--gray-200);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .status-toggle input[type="radio"] {
+            position: absolute;
+            opacity: 0;
+            pointer-events: none;
+        }
+        
+        .status-option {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            padding: var(--space-3) var(--space-4);
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            font-weight: 600;
+            font-size: 0.875rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .status-option.present {
+            color: var(--gray-600);
+            background: transparent;
+        }
+        
+        .status-option.absent {
+            color: var(--gray-600);
+            background: transparent;
+        }
+        
+        .status-option i {
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+        }
+        
+        .status-option.present i {
+            color: var(--success-500);
+        }
+        
+        .status-option.absent i {
+            color: var(--error-500);
+        }
+        
+        /* Selected state */
+        .status-toggle input[type="radio"]:checked + .status-option.present {
+            background: var(--success-500);
+            color: white;
+            box-shadow: 0 2px 4px rgba(34, 197, 94, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .status-toggle input[type="radio"]:checked + .status-option.absent {
+            background: var(--error-500);
+            color: white;
+            box-shadow: 0 2px 4px rgba(239, 68, 68, 0.3);
+            transform: translateY(-1px);
+        }
+        
+        .status-toggle input[type="radio"]:checked + .status-option i {
+            color: white;
+        }
+        
+        /* Hover effects */
+        .status-option:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .status-option.present:hover {
+            background: var(--success-50);
+            color: var(--success-700);
+        }
+        
+        .status-option.absent:hover {
+            background: var(--error-50);
+            color: var(--error-700);
+        }
+        
+        .status-option.present:hover i {
+            color: var(--success-600);
+        }
+        
+        .status-option.absent:hover i {
+            color: var(--error-600);
+        }
+        
         .form-actions {
             display: flex;
             gap: var(--space-4);
@@ -373,7 +496,6 @@
                 <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
                 <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
                 <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
-                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
             </nav>
         </div>
@@ -420,11 +542,6 @@
                     <h4>Bulk Attendance</h4>
                     <p>Mark attendance for multiple students at once</p>
                 </div>
-                <div class="quick-action-card" onclick="viewCalendar()">
-                    <i class="fas fa-calendar-alt"></i>
-                    <h4>Calendar View</h4>
-                    <p>View attendance in calendar format</p>
-                </div>
                 <div class="quick-action-card" onclick="generateReport()">
                     <i class="fas fa-chart-line"></i>
                     <h4>Attendance Report</h4>
@@ -443,19 +560,29 @@
                 <form id="attendance-form">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="studentId"><i class="fas fa-user"></i> Student ID</label>
-                            <input type="number" id="studentId" placeholder="Enter student ID" required />
+                            <label for="studentSearch"><i class="fas fa-user"></i> Student</label>
+                            <input type="text" id="studentSearch" placeholder="Type name or roll to search" autocomplete="off" required />
+                            <input type="hidden" id="studentId" />
+                            <div id="studentResults" class="dropdown-results"></div>
                         </div>
                         <div class="form-group">
                             <label for="date"><i class="fas fa-calendar"></i> Date</label>
                             <input type="date" id="date" required />
                         </div>
                         <div class="form-group">
-                            <label for="status"><i class="fas fa-info-circle"></i> Status</label>
-                            <select id="status">
-                                <option value="Present">Present</option>
-                                <option value="Absent">Absent</option>
-                            </select>
+                            <label><i class="fas fa-info-circle"></i> Status</label>
+                            <div class="status-toggle">
+                                <input type="radio" id="status-present" name="status" value="Present" checked />
+                                <label for="status-present" class="status-option present">
+                                    <i class="fas fa-check"></i>
+                                    <span>Present</span>
+                                </label>
+                                <input type="radio" id="status-absent" name="status" value="Absent" />
+                                <label for="status-absent" class="status-option absent">
+                                    <i class="fas fa-times"></i>
+                                    <span>Absent</span>
+                                </label>
+                            </div>
                         </div>
                     </div>
                     <div class="form-actions">
@@ -474,16 +601,13 @@
                 <h3><i class="fas fa-search"></i> Search & Filter</h3>
                 <div class="search-grid">
                     <div class="form-group">
-                        <label for="filterStudentId">Student ID</label>
-                        <input type="number" id="filterStudentId" placeholder="Enter student ID" />
+                        <label for="filterStudent">Student</label>
+                        <input type="text" id="filterStudent" placeholder="Search by name or ID" autocomplete="off" />
+                        <div id="filterStudentResults" class="dropdown-results"></div>
                     </div>
                     <div class="form-group">
-                        <label for="filterFrom">From Date</label>
-                        <input type="date" id="filterFrom" />
-                    </div>
-                    <div class="form-group">
-                        <label for="filterTo">To Date</label>
-                        <input type="date" id="filterTo" />
+                        <label for="filterDate">Date</label>
+                        <input type="date" id="filterDate" />
                     </div>
                     <div class="form-group">
                         <label for="filterStatus">Status</label>

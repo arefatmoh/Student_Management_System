@@ -137,7 +137,51 @@ function clearFile() {
 
 // Download template
 function downloadTemplate() {
-    window.open('/api/import-export/students/template', '_blank');
+    // Generate CSV with Ethiopian sample names plus existing DB students (first 20)
+    try {
+        generateTemplateCsv();
+    } catch (e) {
+        // Fallback to server endpoint
+        window.open('/api/import-export/students/template', '_blank');
+    }
+}
+
+async function generateTemplateCsv() {
+    const headers = ['NAME','ROLL_NUMBER','CLASS','PARENT_CONTACT'];
+    const ethiopianSamples = [
+        ['Abebe Bekele','R001','Grade 1','0912345678'],
+        ['Almaz Kebede','R002','Grade 1','0911223344'],
+        ['Kebede Alemu','R003','Grade 2','0922334455'],
+        ['Hanna Tesfaye','R004','Grade 3','0933445566'],
+        ['Meron Haile','R005','Grade 2','0944556677'],
+        ['Samuel Girma','R006','Grade 4','0955667788'],
+        ['Mulu Getachew','R007','Grade 5','0966778899'],
+        ['Kidus Tadesse','R008','Grade 3','0977889900'],
+        ['Feven Solomon','R009','Grade 4','0988990011'],
+        ['Yared Tsegaye','R010','Grade 5','0999001122']
+    ];
+    let existing = [];
+    try {
+        const res = await apiFetch('/api/students?limit=20');
+        const data = res && res.data ? res.data : res;
+        existing = (data || []).map(s => [s.NAME, s.ROLL_NUMBER, s.CLASS, s.PARENT_CONTACT || '']);
+    } catch (e) {
+        // ignore fetch errors; still provide samples
+    }
+    const rows = [headers].concat(ethiopianSamples).concat(existing);
+    const csv = rows.map(r => r.map(v => {
+        const s = String(v ?? '');
+        return s.includes(',') || s.includes('"') ? '"' + s.replace(/"/g,'""') + '"' : s;
+    }).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `students_template_${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
 }
 
 // Import students

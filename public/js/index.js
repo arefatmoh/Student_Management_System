@@ -6,18 +6,18 @@ async function fetchJson(url, options) {
 // Check user role and show/hide admin features
 async function checkUserRole() {
 	try {
-		const user = await fetchJson('/api/me');
+		const user = await fetchJson('/api/auth/me');
 		if (user.role === 'admin') {
 			document.getElementById('adminCard').style.display = 'block';
 		}
 		
 		// Update user info display
 		document.getElementById('userName').textContent = user.username || 'User';
-		document.getElementById('userRole').textContent = user.role === 'admin' ? 'Administrator' : 'Teacher';
+		document.getElementById('userRole').textContent = user.role === 'admin' ? 'Administrator' : (user.role === 'teacher' ? 'Teacher' : 'User');
 	} catch (error) {
 		console.log('Could not check user role:', error);
 		document.getElementById('userName').textContent = 'User';
-		document.getElementById('userRole').textContent = 'Unknown';
+		document.getElementById('userRole').textContent = 'User';
 	}
 }
 
@@ -72,13 +72,14 @@ function updateKPIChange(elementId, current, previous) {
 	}
 	
 	try {
-		const fees = await fetchJson('/api/reports/fees');
-		const pendingFees = fees.totalPending ?? 0;
-		animateValue(document.getElementById('kpi-pending'), 0, pendingFees, 1000);
-		updateKPIChange('fees-change', pendingFees, pendingFees + 3); // Mock previous value
+		const currentMonth = new Date().toISOString().slice(0,7);
+		const fees = await fetchJson(`/api/fees?month=${currentMonth}&status=Paid&limit=1000`);
+		const studentsPaid = new Set(fees.data?.map(f => f.STUDENT_ID) || []).size;
+		animateValue(document.getElementById('kpi-students-paid'), 0, studentsPaid, 1000);
+		updateKPIChange('fees-change', studentsPaid, studentsPaid - 2); // Mock previous value
 	} catch (error) {
-		console.error('Error loading fees:', error);
-		document.getElementById('kpi-pending').textContent = '-';
+		console.error('Error loading students paid:', error);
+		document.getElementById('kpi-students-paid').textContent = '-';
 	}
 	
 	try {
@@ -92,15 +93,6 @@ function updateKPIChange(elementId, current, previous) {
 		document.getElementById('kpi-present').textContent = '-';
 	}
 	
-	try {
-		const invoices = await fetchJson('/api/invoices?status=Overdue&limit=1');
-		const overdueInvoices = invoices.pagination?.total ?? 0;
-		animateValue(document.getElementById('kpi-overdue'), 0, overdueInvoices, 1000);
-		updateKPIChange('overdue-change', overdueInvoices, overdueInvoices + 1); // Mock previous value
-	} catch (error) {
-		console.error('Error loading invoices:', error);
-		document.getElementById('kpi-overdue').textContent = '-';
-	}
 	
 	try {
 		const classes = await fetchJson('/api/classes');

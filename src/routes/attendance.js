@@ -32,27 +32,39 @@ router.post('/', async (req, res) => {
 // List attendance (filters: student, date range, status)
 router.get('/', async (req, res) => {
 	try {
-		const { studentId, status, from, to, page = 1, limit = 10 } = req.query;
+		const { studentId, studentName, status, from, to, page = 1, limit = 10 } = req.query;
 		const filters = [];
 		const params = [];
-		if (studentId) { filters.push('STUDENT_ID = ?'); params.push(Number(studentId)); }
-		if (status) { filters.push('STATUS = ?'); params.push(status); }
-		if (from) { filters.push('ATTENDANCE_DATE >= ?'); params.push(from); }
-		if (to) { filters.push('ATTENDANCE_DATE <= ?'); params.push(to); }
+		if (studentId) { filters.push('a.STUDENT_ID = ?'); params.push(Number(studentId)); }
+		if (studentName) { filters.push('s.NAME LIKE ?'); params.push(`${studentName}%`); }
+		if (status) { filters.push('a.STATUS = ?'); params.push(status); }
+		if (from) { filters.push('a.ATTENDANCE_DATE >= ?'); params.push(from); }
+		if (to) { filters.push('a.ATTENDANCE_DATE <= ?'); params.push(to); }
 		const where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
 		const pageNum = Math.max(1, parseInt(page, 10) || 1);
 		const limitNum = Math.max(1, Math.min(50, parseInt(limit, 10) || 10));
 		const offset = (pageNum - 1) * limitNum;
 
 		const [rows] = await getPool().query(
-			`SELECT * FROM Attendance ${where} ORDER BY ATTENDANCE_DATE DESC, ATTENDANCE_ID DESC LIMIT ? OFFSET ?`,
+			`SELECT a.*, s.NAME AS STUDENT_NAME, s.ROLL_NUMBER, s.CLASS
+			 FROM Attendance a
+			 JOIN Students s ON s.STUDENT_ID = a.STUDENT_ID
+			 ${where} ORDER BY a.ATTENDANCE_DATE DESC, a.ATTENDANCE_ID DESC LIMIT ? OFFSET ?`,
 			[...params, limitNum, offset]
 		);
 		const [countRows] = await getPool().query(
-			`SELECT COUNT(*) as total FROM Attendance ${where}`,
+			`SELECT COUNT(*) as total FROM Attendance a JOIN Students s ON s.STUDENT_ID = a.STUDENT_ID ${where}`,
 			params
 		);
-		res.json({ data: rows, page: pageNum, limit: limitNum, total: countRows[0].total });
+		res.json({ 
+			data: rows, 
+			pagination: { 
+				page: pageNum, 
+				limit: limitNum, 
+				total: countRows[0].total, 
+				pages: Math.ceil(countRows[0].total / limitNum) 
+			} 
+		});
 	} catch (err) {
 		res.status(500).json({ message: 'Server error', error: err.message });
 	}
@@ -79,6 +91,46 @@ router.get('/summary/:studentId', async (req, res) => {
 			[studentId, from, to]
 		);
 		res.json({ studentId, from, to, present: present[0].present, absent: absent[0].absent });
+	} catch (err) {
+		res.status(500).json({ message: 'Server error', error: err.message });
+	}
+});
+
+// General summary for dashboard cards
+router.get('/summary', async (req, res) => {
+	try {
+		const today = new Date().toISOString().slice(0, 10);
+		const currentMonth = new Date().toISOString().slice(0, 7);
+		const firstDayOfMonth = new Date(new Date().getFullYear(), new Date().getMonth(), 1).toISOString().slice(0, 10);
+		
+		// Present Today
+		const [presentToday] = await getPool().query(
+			"SELECT COUNT(*) as count FROM Attendance WHERE STATUS='Present' AND ATTENDANCE_DATE = ?",
+			[today]
+		);
+		
+		// Absent Today
+		const [absentToday] = await getPool().query(
+			"SELECT COUNT(*) as count FROM Attendance WHERE STATUS='Absent' AND ATTENDANCE_DATE = ?",
+			[today]
+		);
+		
+		// This Month (total attendance records)
+		const [thisMonth] = await getPool().query(
+			"SELECT COUNT(*) as count FROM Attendance WHERE ATTENDANCE_DATE >= ?",
+			[firstDayOfMonth]
+		);
+		
+		// Attendance Rate (Present / Total for today)
+		const totalToday = presentToday[0].count + absentToday[0].count;
+		const attendanceRate = totalToday > 0 ? Math.round((presentToday[0].count / totalToday) * 100) : 0;
+		
+		res.json({
+			presentToday: presentToday[0].count,
+			absentToday: absentToday[0].count,
+			thisMonth: thisMonth[0].count,
+			attendanceRate: attendanceRate
+		});
 	} catch (err) {
 		res.status(500).json({ message: 'Server error', error: err.message });
 	}

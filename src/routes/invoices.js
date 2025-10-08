@@ -42,6 +42,67 @@ router.post('/', async (req, res) => {
   }
 });
 
+// Batch create invoices (and optional payments)
+router.post('/batch', async (req, res) => {
+  const { items } = req.body || {};
+  if (!Array.isArray(items) || items.length === 0) {
+    return res.status(400).json({ error: 'No items to process' });
+  }
+  const pool = getPool();
+  const conn = await pool.getConnection();
+  try {
+    await conn.beginTransaction();
+    const created = [];
+    for (const it of items) {
+      const studentId = Number(it.studentId);
+      const amount = Number(it.amount || 0);
+      const months = (it.months || []).map(m => String(m));
+      if (!studentId || !amount || months.length === 0) {
+        throw new Error('Invalid item: studentId, amount, months required');
+      }
+      const description = `Fees for ${months.join(', ')}`;
+      const dueDate = new Date();
+      dueDate.setDate(dueDate.getDate() + 14); // default 2 weeks
+      const invoiceNumber = generateInvoiceNumber();
+
+      const [invRes] = await conn.query(
+        'INSERT INTO Invoices (STUDENT_ID, INVOICE_NUMBER, DESCRIPTION, TOTAL_AMOUNT, DUE_DATE) VALUES (?, ?, ?, ?, ?)',
+        [studentId, invoiceNumber, description, amount, dueDate.toISOString().slice(0,10)]
+      );
+      const invoiceId = invRes.insertId;
+
+      if (it.recordPayment) {
+        const today = new Date().toISOString().slice(0,10);
+        for (const m of months) {
+          await conn.query(
+            'INSERT INTO Payments (INVOICE_ID, AMOUNT, PAYMENT_DATE, PAYMENT_METHOD, NOTES) VALUES (?, ?, ?, ?, ?)',
+            [invoiceId, amount, today, 'Cash', `Month ${m}`]
+          );
+          await conn.query('UPDATE Invoices SET PAID_AMOUNT = PAID_AMOUNT + ? WHERE INVOICE_ID = ?', [amount, invoiceId]);
+          // Also mirror into Fees table for the Fees page
+          await conn.query(
+            'INSERT INTO Fees (STUDENT_ID, FEE_AMOUNT, PAID_DATE, MONTH_PAID, STATUS) VALUES (?, ?, ?, ?, ?)',
+            [studentId, amount, today, m, 'Paid']
+          );
+        }
+        // update status
+        const [[inv]] = await conn.query('SELECT TOTAL_AMOUNT, PAID_AMOUNT FROM Invoices WHERE INVOICE_ID=?', [invoiceId]);
+        const remaining = inv.TOTAL_AMOUNT - inv.PAID_AMOUNT;
+        const status = remaining <= 0 ? 'Paid' : (inv.PAID_AMOUNT > 0 ? 'Partially Paid' : 'Pending');
+        await conn.query('UPDATE Invoices SET STATUS=? WHERE INVOICE_ID=?', [status, invoiceId]);
+      }
+      created.push({ invoiceId, invoiceNumber, studentId });
+    }
+    await conn.commit();
+    res.json({ created });
+  } catch (e) {
+    await conn.rollback();
+    res.status(500).json({ error: e.message || 'Failed to create batch invoices' });
+  } finally {
+    conn.release();
+  }
+});
+
 // Get all invoices with student info
 router.get('/', async (req, res) => {
   try {

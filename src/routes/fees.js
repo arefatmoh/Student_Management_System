@@ -5,15 +5,38 @@ const { getPool } = require('../db');
 // Record a fee payment
 router.post('/', async (req, res) => {
 	try {
-		const { STUDENT_ID, FEE_AMOUNT, PAID_DATE, STATUS } = req.body || {};
+		const { STUDENT_ID, FEE_AMOUNT, PAID_DATE, STATUS, MONTH_PAID } = req.body || {};
 		if (!STUDENT_ID || !FEE_AMOUNT) {
 			return res.status(400).json({ message: 'STUDENT_ID and FEE_AMOUNT are required' });
 		}
 		const statusValue = STATUS === 'Paid' || STATUS === 'Pending' ? STATUS : 'Pending';
-		const paidDateValue = PAID_DATE || null;
+		const today = new Date();
+		const paidDateValue = PAID_DATE || today.toISOString().slice(0,10);
+		const monthPaidValue = MONTH_PAID || (paidDateValue ? paidDateValue.slice(0,7) : null);
+		// Support multiple months (comma-separated YYYY-MM list)
+		const months = String(monthPaidValue || '').split(',').map(m => m.trim()).filter(Boolean);
+		if (months.length > 1) {
+			const conn = await getPool().getConnection();
+			try {
+				await conn.beginTransaction();
+				for (const m of months) {
+					await conn.query(
+						'INSERT INTO Fees (STUDENT_ID, FEE_AMOUNT, PAID_DATE, MONTH_PAID, STATUS) VALUES (?, ?, ?, ?, ?)',
+						[STUDENT_ID, FEE_AMOUNT, paidDateValue, m, statusValue]
+					);
+				}
+				await conn.commit();
+			} catch (e) {
+				await conn.rollback();
+				throw e;
+			} finally {
+				conn.release();
+			}
+			return res.status(201).json({ message: 'Payments recorded for multiple months' });
+		}
 		const [result] = await getPool().query(
-			'INSERT INTO Fees (STUDENT_ID, FEE_AMOUNT, PAID_DATE, STATUS) VALUES (?, ?, ?, ?)',
-			[STUDENT_ID, FEE_AMOUNT, paidDateValue, statusValue]
+			'INSERT INTO Fees (STUDENT_ID, FEE_AMOUNT, PAID_DATE, MONTH_PAID, STATUS) VALUES (?, ?, ?, ?, ?)',
+			[STUDENT_ID, FEE_AMOUNT, paidDateValue, monthPaidValue, statusValue]
 		);
 		const [rows] = await getPool().query('SELECT * FROM Fees WHERE FEE_ID = ?', [result.insertId]);
 		res.status(201).json(rows[0]);
@@ -25,30 +48,66 @@ router.post('/', async (req, res) => {
 // List fees with filters (by student, status, date range)
 router.get('/', async (req, res) => {
 	try {
-		const { studentId, status, from, to, page = 1, limit = 10 } = req.query;
+		const { studentId, studentName, status, from, to, month, page = 1, limit = 10 } = req.query;
 		const filters = [];
 		const params = [];
-		if (studentId) { filters.push('STUDENT_ID = ?'); params.push(Number(studentId)); }
-		if (status) { filters.push('STATUS = ?'); params.push(status); }
-		if (from) { filters.push('PAID_DATE >= ?'); params.push(from); }
-		if (to) { filters.push('PAID_DATE <= ?'); params.push(to); }
+		if (studentId) { filters.push('f.STUDENT_ID = ?'); params.push(Number(studentId)); }
+		if (studentName) { filters.push('s.NAME LIKE ?'); params.push(`${studentName}%`); }
+		if (status) { filters.push('f.STATUS = ?'); params.push(status); }
+		if (from) { filters.push('f.PAID_DATE >= ?'); params.push(from); }
+		if (to) { filters.push('f.PAID_DATE <= ?'); params.push(to); }
+		if (month) { filters.push('f.MONTH_PAID = ?'); params.push(month); }
 		const where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
 		const pageNum = Math.max(1, parseInt(page, 10) || 1);
 		const limitNum = Math.max(1, Math.min(50, parseInt(limit, 10) || 10));
 		const offset = (pageNum - 1) * limitNum;
 
 		const [rows] = await getPool().query(
-			`SELECT * FROM Fees ${where} ORDER BY FEE_ID DESC LIMIT ? OFFSET ?`,
+			`SELECT f.*, s.NAME AS STUDENT_NAME, s.ROLL_NUMBER, s.CLASS
+			 FROM Fees f
+			 JOIN Students s ON s.STUDENT_ID = f.STUDENT_ID
+			 ${where}
+			 ORDER BY f.FEE_ID DESC LIMIT ? OFFSET ?`,
 			[...params, limitNum, offset]
 		);
 		const [countRows] = await getPool().query(
-			`SELECT COUNT(*) as total FROM Fees ${where}`,
+			`SELECT COUNT(*) as total FROM Fees f JOIN Students s ON s.STUDENT_ID=f.STUDENT_ID ${where}`,
 			params
 		);
-		res.json({ data: rows, page: pageNum, limit: limitNum, total: countRows[0].total });
+		res.json({ data: rows, pagination: { page: pageNum, limit: limitNum, total: countRows[0].total, pages: Math.ceil(countRows[0].total / limitNum) } });
 	} catch (err) {
 		res.status(500).json({ message: 'Server error', error: err.message });
 	}
+});
+
+// Summary cards data: total paid, total pending, this month, total students
+router.get('/summary', async (req, res) => {
+    try {
+        const pool = getPool();
+        const yyyyMm = new Date().toISOString().slice(0,7);
+
+        const [[paid]] = await pool.query(
+            "SELECT IFNULL(SUM(FEE_AMOUNT),0) AS totalPaid FROM Fees WHERE STATUS='Paid'"
+        );
+        const [[pending]] = await pool.query(
+            "SELECT IFNULL(SUM(FEE_AMOUNT),0) AS totalPending FROM Fees WHERE STATUS='Pending'"
+        );
+        const [[thisMonth]] = await pool.query(
+            'SELECT IFNULL(SUM(FEE_AMOUNT),0) AS thisMonth FROM Fees WHERE STATUS=\'Paid\' AND MONTH_PAID = ?',[yyyyMm]
+        );
+        const [[students]] = await pool.query(
+            'SELECT COUNT(*) AS totalStudents FROM Students'
+        );
+
+        res.json({
+            totalPaid: Number(paid.totalPaid || 0),
+            totalPending: Number(pending.totalPending || 0),
+            thisMonth: Number(thisMonth.thisMonth || 0),
+            totalStudents: Number(students.totalStudents || 0)
+        });
+    } catch (err) {
+        res.status(500).json({ message: 'Server error', error: err.message });
+    }
 });
 
 // Get fee by id (receipt data)

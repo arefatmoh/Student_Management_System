@@ -118,6 +118,40 @@
             align-items: center;
         }
         
+        /* Live search dropdown (match Attendance/Fees) */
+        .dropdown-results {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            max-height: 220px;
+            overflow: auto;
+            z-index: 1000;
+        }
+        .dropdown-item {
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background: var(--gray-50);
+        }
+        /* Anchor dropdown under input */
+        .form-group { position: relative; }
+
+        /* Compact row for term/score/max */
+        .compact-fields {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(120px, 1fr));
+            gap: var(--space-4);
+        }
+        .compact-fields .form-group input {
+            padding: 8px 10px;
+        }
+        
         .grade-badge {
             padding: var(--space-1) var(--space-3);
             border-radius: var(--radius-full);
@@ -441,7 +475,6 @@
                 <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
                 <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
                 <a href="/marks.html" class="active"><i class="fas fa-graduation-cap"></i> Marks</a>
-                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
             </nav>
         </div>
@@ -489,6 +522,9 @@
                 <button class="tab" onclick="switchTab('view')">
                     <i class="fas fa-eye"></i> View Marks
                 </button>
+                <button class="tab" onclick="switchTab('bulk')">
+                    <i class="fas fa-users-cog"></i> Bulk Record
+                </button>
                 <button class="tab" onclick="switchTab('analytics')">
                     <i class="fas fa-chart-bar"></i> Analytics
                 </button>
@@ -502,24 +538,30 @@
                     <form id="mark-form">
                         <div class="form-grid">
                             <div class="form-group">
-                                <label for="studentId"><i class="fas fa-user"></i> Student ID</label>
-                                <input type="number" id="studentId" placeholder="Enter student ID" required />
+                                <label for="studentSearch"><i class="fas fa-user"></i> Student</label>
+                                <input type="text" id="studentSearch" placeholder="Type name or roll to search" autocomplete="off" required />
+                                <input type="hidden" id="studentId" />
+                                <div id="studentResults" class="dropdown-results"></div>
                             </div>
                             <div class="form-group">
-                                <label for="subjectId"><i class="fas fa-book"></i> Subject ID</label>
-                                <input type="number" id="subjectId" placeholder="Enter subject ID" required />
+                                <label for="subjectSelect"><i class="fas fa-book"></i> Subject</label>
+                                <select id="subjectSelect" required>
+                                    <option value="">Select subject</option>
+                                </select>
                             </div>
+                        </div>
+                        <div class="compact-fields">
                             <div class="form-group">
                                 <label for="term"><i class="fas fa-calendar"></i> Term</label>
-                                <input type="text" id="term" placeholder="Enter term (e.g., T1, Mid-term)" required />
+                                <input type="text" id="term" placeholder="e.g., T1 or Mid-term" required />
                             </div>
                             <div class="form-group">
                                 <label for="score"><i class="fas fa-star"></i> Score</label>
-                                <input type="number" id="score" placeholder="Enter score" min="0" step="0.01" required />
+                                <input type="number" id="score" placeholder="Score" min="0" step="0.01" required />
                             </div>
                             <div class="form-group">
-                                <label for="maxScore"><i class="fas fa-trophy"></i> Maximum Score</label>
-                                <input type="number" id="maxScore" placeholder="Enter max score (default 100)" min="1" step="0.01" />
+                                <label for="maxScore"><i class="fas fa-trophy"></i> Max</label>
+                                <input type="number" id="maxScore" placeholder="100" min="1" step="0.01" />
                             </div>
                         </div>
                         <div class="form-actions">
@@ -531,45 +573,10 @@
                             </button>
                         </div>
                     </form>
-                    <div class="tip-box">
-                        <h4><i class="fas fa-lightbulb"></i> Tip</h4>
-                        <p>Use the Subjects list below to find the correct Subject IDs for recording marks.</p>
-                    </div>
+                    
                 </div>
 
-                <!-- Subjects Reference -->
-                <div class="table-section">
-                    <div class="table-header">
-                        <h3><i class="fas fa-book"></i> Subjects Reference</h3>
-                        <div class="table-actions">
-                            <button id="refreshSubjectsBtn" class="btn btn-secondary">
-                                <i class="fas fa-sync-alt"></i> Refresh
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="table-container">
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th><i class="fas fa-hashtag"></i> ID</th>
-                                    <th><i class="fas fa-book"></i> Subject Name</th>
-                                    <th><i class="fas fa-code"></i> Code</th>
-                                    <th><i class="fas fa-school"></i> Class</th>
-                                    <th><i class="fas fa-info-circle"></i> Description</th>
-                                </tr>
-                            </thead>
-                            <tbody id="subjects-body">
-                                <tr>
-                                    <td colspan="5" class="empty-state">
-                                        <i class="fas fa-spinner fa-spin"></i>
-                                        <p>Loading subjects...</p>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+                
             </div>
 
             <!-- View Marks Tab -->
@@ -579,12 +586,16 @@
                     <h3><i class="fas fa-search"></i> Search Marks</h3>
                     <div class="search-grid">
                         <div class="form-group">
-                            <label for="queryStudentId">Student ID</label>
-                            <input type="number" id="queryStudentId" placeholder="Enter student ID" />
+                            <label for="filterStudentSearch">Student</label>
+                            <input type="text" id="filterStudentSearch" placeholder="Type name or roll to search" autocomplete="off" />
+                            <input type="hidden" id="filterStudentId" />
+                            <div id="filterStudentResults" class="dropdown-results"></div>
                         </div>
                         <div class="form-group">
-                            <label for="querySubjectId">Subject ID</label>
-                            <input type="number" id="querySubjectId" placeholder="Enter subject ID" />
+                            <label for="querySubjectSelect">Subject</label>
+                            <select id="querySubjectSelect">
+                                <option value="">Any Subject</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="queryTerm">Term</label>
@@ -635,6 +646,68 @@
                                         <i class="fas fa-graduation-cap"></i>
                                         <h3>No marks found</h3>
                                         <p>Search for marks or record new ones to get started.</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Bulk Record Tab -->
+            <div id="bulk-tab" class="tab-content">
+                <div class="form-section">
+                    <h3><i class="fas fa-users-cog"></i> Bulk Record Marks</h3>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="bulkClass"><i class="fas fa-school"></i> Class</label>
+                            <select id="bulkClass">
+                                <option value="">All Classes</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bulkSubject"><i class="fas fa-book"></i> Subject</label>
+                            <select id="bulkSubject">
+                                <option value="">Select subject</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="bulkTerm"><i class="fas fa-calendar"></i> Term</label>
+                            <input type="text" id="bulkTerm" placeholder="e.g., T1 or Mid-term" />
+                        </div>
+                        <div class="form-group">
+                            <label for="bulkMax"><i class="fas fa-trophy"></i> Max Score</label>
+                            <input type="number" id="bulkMax" placeholder="100" min="1" step="0.01" />
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" id="loadBulkStudentsBtn" class="btn btn-secondary"><i class="fas fa-sync"></i> Load Students</button>
+                        <button type="button" id="saveBulkMarksBtn" class="btn btn-primary"><i class="fas fa-save"></i> Save Marks</button>
+                        <button type="button" id="clearBulkMarksBtn" class="btn btn-secondary"><i class="fas fa-eraser"></i> Clear</button>
+                    </div>
+                </div>
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Students</h3>
+                        <div class="table-actions">
+                            <button id="markAllZeroBtn" class="btn btn-secondary"><i class="fas fa-minus-circle"></i> Set All 0</button>
+                            <button id="distributeMaxBtn" class="btn btn-secondary"><i class="fas fa-equals"></i> Fill Max</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><i class="fas fa-user"></i> Student</th>
+                                    <th><i class="fas fa-id-card"></i> Roll</th>
+                                    <th><i class="fas fa-star"></i> Score</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulkStudentsBody">
+                                <tr>
+                                    <td colspan="3" class="empty-state">
+                                        <i class="fas fa-spinner fa-spin"></i>
+                                        <p>Select class and click Load Students.</p>
                                     </td>
                                 </tr>
                             </tbody>

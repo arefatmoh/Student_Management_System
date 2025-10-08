@@ -49,6 +49,7 @@ async function initDb() {
       STUDENT_ID INT NOT NULL,
       FEE_AMOUNT DECIMAL(10,2) NOT NULL,
       PAID_DATE DATE,
+      MONTH_PAID VARCHAR(7), -- YYYY-MM
       STATUS ENUM('Paid','Pending') NOT NULL DEFAULT 'Pending',
       CONSTRAINT fk_fees_student FOREIGN KEY (STUDENT_ID)
         REFERENCES Students(STUDENT_ID) ON DELETE CASCADE
@@ -170,6 +171,16 @@ async function initDb() {
     }
   }
 
+  // Add MONTH_PAID to Fees if it doesn't exist
+  try {
+    await pool.query('ALTER TABLE Fees ADD COLUMN MONTH_PAID VARCHAR(7)');
+    console.log('Added MONTH_PAID column to Fees table');
+  } catch (error) {
+    if (!error.message.includes('Duplicate column name')) {
+      console.log('Note: MONTH_PAID column may already exist:', error.message);
+    }
+  }
+
   // Add CODE and DESCRIPTION columns to Subjects table if they don't exist
   try {
     await pool.query('ALTER TABLE Subjects ADD COLUMN CODE VARCHAR(10)');
@@ -191,23 +202,31 @@ async function initDb() {
 
   // Remove CLASS_ID dependency from Subjects table
   try {
-    // First, remove any foreign key constraints
-    await pool.query('ALTER TABLE Subjects DROP FOREIGN KEY fk_subjects_class');
-    console.log('Removed foreign key constraint from Subjects table');
-  } catch (error) {
-    // Foreign key might not exist, ignore error
-    console.log('Note: Foreign key constraint may not exist:', error.message);
-  }
-
-  try {
-    // Remove the CLASS_ID column
-    await pool.query('ALTER TABLE Subjects DROP COLUMN CLASS_ID');
-    console.log('Removed CLASS_ID column from Subjects table');
-  } catch (error) {
-    // Column might not exist, ignore error
-    if (!error.message.includes("doesn't exist")) {
-      console.log('Note: CLASS_ID column may not exist:', error.message);
+    // Conditionally drop FK if it exists (auto-named FKs vary by server)
+    const dbName = process.env.DB_NAME;
+    const [fkRows] = await pool.query(
+      `SELECT CONSTRAINT_NAME FROM information_schema.KEY_COLUMN_USAGE
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'Subjects' AND REFERENCED_TABLE_NAME = 'Classes'`,
+      [dbName]
+    );
+    if (fkRows.length) {
+      const fkName = fkRows[0].CONSTRAINT_NAME;
+      await pool.query(`ALTER TABLE Subjects DROP FOREIGN KEY \`${fkName}\``);
+      console.log('Removed foreign key constraint from Subjects table:', fkName);
     }
+
+    // Conditionally drop CLASS_ID if it exists
+    const [colRows] = await pool.query(
+      `SELECT 1 FROM information_schema.COLUMNS
+       WHERE TABLE_SCHEMA = ? AND TABLE_NAME = 'Subjects' AND COLUMN_NAME = 'CLASS_ID'`,
+      [dbName]
+    );
+    if (colRows.length) {
+      await pool.query('ALTER TABLE Subjects DROP COLUMN CLASS_ID');
+      console.log('Removed CLASS_ID column from Subjects table');
+    }
+  } catch (error) {
+    console.log('Note: Could not adjust Subjects->Classes relationship:', error.message);
   }
 
   try {

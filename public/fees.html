@@ -57,6 +57,97 @@
             margin-bottom: var(--space-6);
         }
         
+        /* Live search dropdown */
+        .dropdown-results {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-md);
+            max-height: 220px;
+            overflow: auto;
+            z-index: 1000;
+        }
+        .dropdown-item {
+            padding: 10px 12px;
+            cursor: pointer;
+        }
+        .dropdown-item:hover {
+            background: var(--gray-50);
+        }
+        /* Ensure dropdown anchors to input container */
+        .form-group { position: relative; }
+
+        /* Month picker styles */
+        .month-picker {
+            position: relative;
+        }
+        .month-control {
+            display: flex;
+            align-items: center;
+            min-height: 42px;
+            gap: 8px;
+            padding: 8px 10px;
+            border: 1px solid var(--gray-300);
+            border-radius: var(--radius-md);
+            background: #fff;
+            cursor: pointer;
+            flex-wrap: wrap;
+        }
+        .month-placeholder { color: var(--gray-500); }
+        .month-chip {
+            background: var(--primary-50);
+            color: var(--primary-700);
+            border: 1px solid var(--primary-100);
+            border-radius: 9999px;
+            padding: 4px 8px;
+            font-size: 12px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .chip-remove { color: var(--primary-700); cursor: pointer; }
+        .month-panel {
+            position: absolute;
+            top: calc(100% + 6px);
+            left: 0;
+            width: 320px;
+            background: #fff;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+            z-index: 1000;
+            padding: 10px;
+        }
+        .month-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+        }
+        .month-btn {
+            text-align: center;
+            padding: 8px;
+            border: 1px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            background: var(--gray-50);
+            cursor: pointer;
+            user-select: none;
+        }
+        .month-btn.active {
+            background: var(--primary-600);
+            color: #fff;
+            border-color: var(--primary-700);
+        }
+        
         .form-actions {
             display: flex;
             gap: var(--space-4);
@@ -102,6 +193,33 @@
             align-items: center;
             gap: var(--space-3);
         }
+
+        /* Tabs */
+        .tabs {
+            display: inline-flex;
+            background: var(--gray-100);
+            padding: 4px;
+            border-radius: var(--radius-full);
+            border: 1px solid var(--gray-200);
+        }
+        .tab-button {
+            background: transparent;
+            border: 0;
+            padding: 10px 16px;
+            border-radius: var(--radius-full);
+            font-weight: 600;
+            color: var(--gray-700);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-button.active {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: #fff;
+            box-shadow: var(--shadow-sm);
+        }
+        .tab-panel.hidden { display: none; }
         
         .table-header {
             display: flex;
@@ -111,6 +229,28 @@
             flex-wrap: wrap;
             gap: var(--space-4);
         }
+        
+        /* Modal (invoice preview) */
+        .modal { 
+            position: fixed; inset: 0; 
+            background: rgba(0,0,0,0.5); 
+            display: flex; align-items: center; justify-content: center; 
+            z-index: 2000; 
+        }
+        .modal.hidden { display: none; }
+        .modal-content {
+            background: #fff; width: min(900px, 92vw);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+        }
+        .modal-header, .modal-footer { 
+            padding: 16px; display:flex; align-items:center; justify-content: space-between; 
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .modal-footer { border-top: 1px solid var(--gray-200); border-bottom: none; }
+        .modal-body { padding: 0; max-height: 70vh; overflow: auto; }
+        .modal .close { background: transparent; border: 0; font-size: 24px; cursor: pointer; }
         
         .table-actions {
             display: flex;
@@ -321,7 +461,6 @@
                 <a href="/reports.html"><i class="fas fa-chart-bar"></i> Reports</a>
                 <a href="/classes.html"><i class="fas fa-school"></i> Classes</a>
                 <a href="/marks.html"><i class="fas fa-graduation-cap"></i> Marks</a>
-                <a href="/invoices.html"><i class="fas fa-file-invoice"></i> Invoices</a>
                 <a href="/import-export.html"><i class="fas fa-download"></i> Import/Export</a>
             </nav>
         </div>
@@ -361,22 +500,42 @@
                 </div>
             </div>
 
-            <!-- Record Fee Payment Form -->
-            <div class="form-section">
+            <!-- Tabs -->
+            <div class="tabs" style="margin-bottom: var(--space-6);">
+                <button class="tab-button active" data-tab="singleTab"><i class="fas fa-plus-circle"></i> Record Fee Payment</button>
+                <button class="tab-button" data-tab="bulkTab"><i class="fas fa-users"></i> Bulk Payments</button>
+            </div>
+
+            <!-- Record Fee Payment (Single) -->
+            <div id="singleTab" class="form-section tab-panel active">
                 <h3><i class="fas fa-plus-circle"></i> Record Fee Payment</h3>
                 <form id="fee-form">
                     <div class="form-grid">
                         <div class="form-group">
-                            <label for="studentId"><i class="fas fa-user"></i> Student ID</label>
-                            <input type="number" id="studentId" placeholder="Enter student ID" required />
+                            <label for="studentSearch"><i class="fas fa-user"></i> Student</label>
+                            <input type="text" id="studentSearch" placeholder="Type name or roll to search" autocomplete="off" />
+                            <input type="hidden" id="studentId" />
+                            <div id="studentResults" class="dropdown-results"></div>
                         </div>
                         <div class="form-group">
                             <label for="amount"><i class="fas fa-dollar-sign"></i> Amount</label>
                             <input type="number" id="amount" placeholder="Enter amount" min="0" step="0.01" required />
                         </div>
-                        <div class="form-group">
-                            <label for="paidDate"><i class="fas fa-calendar"></i> Payment Date</label>
-                            <input type="date" id="paidDate" />
+                        
+                        <div class="form-group month-picker">
+                            <label for="monthPaid"><i class="fas fa-calendar-alt"></i> Month Paid</label>
+                            <input type="hidden" id="monthPaid" />
+                            <div id="monthControl" class="month-control">
+                                <span class="month-placeholder">Select month(s)</span>
+                            </div>
+                            <div id="monthPanel" class="month-panel hidden">
+                                <div class="month-header">
+                                    <button type="button" id="monthPrev" class="btn btn-secondary btn-small"><i class="fas fa-chevron-left"></i></button>
+                                    <div id="monthYearLabel" class="text-muted"></div>
+                                    <button type="button" id="monthNext" class="btn btn-secondary btn-small"><i class="fas fa-chevron-right"></i></button>
+                                </div>
+                                <div id="monthGrid" class="month-grid"></div>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="status"><i class="fas fa-info-circle"></i> Status</label>
@@ -387,8 +546,8 @@
                         </div>
                     </div>
                     <div class="form-actions">
-                        <button type="submit" id="saveFeeBtn" class="btn btn-primary">
-                            <i class="fas fa-save"></i> Record Payment
+                        <button type="button" id="addSingleToCartBtn" class="btn btn-primary">
+                            <i class="fas fa-cart-plus"></i> Add to Invoice Cart
                         </button>
                         <button type="button" id="clearFeeBtn" class="btn btn-secondary">
                             <i class="fas fa-eraser"></i> Clear Form
@@ -397,13 +556,137 @@
                 </form>
             </div>
 
+            <!-- Bulk Payments -->
+            <div id="bulkTab" class="form-section tab-panel hidden">
+                <h3><i class="fas fa-users"></i> Bulk Payments by Class</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="bulkClass"><i class="fas fa-school"></i> Class</label>
+                        <select id="bulkClass">
+                            <option value="">Select a class</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="bulkAmount"><i class="fas fa-dollar-sign"></i> Amount</label>
+                        <input type="number" id="bulkAmount" placeholder="Enter amount" min="0" step="0.01" />
+                    </div>
+                    <div class="form-group month-picker">
+                        <label for="monthPaidBulk"><i class="fas fa-calendar-alt"></i> Month Paid</label>
+                        <input type="hidden" id="monthPaidBulk" />
+                        <div id="monthPaidBulkControl" class="month-control">
+                            <span class="month-placeholder">Select month(s)</span>
+                        </div>
+                        <div id="monthPaidBulkPanel" class="month-panel hidden">
+                            <div class="month-header">
+                                <button type="button" id="monthPaidBulkPrev" class="btn btn-secondary btn-small"><i class="fas fa-chevron-left"></i></button>
+                                <div id="monthPaidBulkYearLabel" class="text-muted"></div>
+                                <button type="button" id="monthPaidBulkNext" class="btn btn-secondary btn-small"><i class="fas fa-chevron-right"></i></button>
+                            </div>
+                            <div id="monthPaidBulkGrid" class="month-grid"></div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="bulkStatus"><i class="fas fa-info-circle"></i> Status</label>
+                        <select id="bulkStatus">
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="table-section" style="margin-top: var(--space-4);">
+                    <div class="table-header">
+                        <h3><i class="fas fa-list"></i> Students in Class</h3>
+                        <div class="table-actions">
+                            <button id="bulkRefreshBtn" class="btn btn-secondary" type="button"><i class="fas fa-sync-alt"></i> Refresh</button>
+                        </div>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th><input type="checkbox" id="bulkSelectAll" /></th>
+                                    <th><i class="fas fa-hashtag"></i> ID</th>
+                                    <th><i class="fas fa-user"></i> Name</th>
+                                    <th><i class="fas fa-id-badge"></i> Roll</th>
+                                    <th><i class="fas fa-school"></i> Class</th>
+                                </tr>
+                            </thead>
+                            <tbody id="bulkStudentsBody">
+                                <tr>
+                                    <td colspan="5" class="empty-state">
+                                        <i class="fas fa-info-circle"></i>
+                                        <p>Select a class to load students</p>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="form-actions" style="margin-top: var(--space-4); gap: 12px;">
+                    <button type="button" id="bulkAddToCartBtn" class="btn btn-primary"><i class="fas fa-cart-plus"></i> Add Selected to Invoice Cart</button>
+                </div>
+            </div>
+
+            <!-- Invoice Cart -->
+            <div class="form-section" id="invoiceCart" style="margin-top: var(--space-6);">
+                <div class="table-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Invoice Cart</h3>
+                    <div class="table-actions">
+                        <span id="cartTotalLabel" class="text-muted">0 items • $0.00</span>
+                        <button type="button" id="cartClearBtn" class="btn btn-secondary"><i class="fas fa-trash"></i> Clear</button>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th><i class="fas fa-user"></i> Student</th>
+                                <th><i class="fas fa-calendar-alt"></i> Months</th>
+                                <th><i class="fas fa-dollar-sign"></i> Amount</th>
+                                <th><i class="fas fa-info-circle"></i> Status</th>
+                                <th><i class="fas fa-cog"></i> Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="cartBody">
+                            <tr>
+                                <td colspan="5" class="empty-state">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <p>No items yet. Use "Add to Invoice Cart" to collect items.</p>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="form-actions" style="margin-top: var(--space-4); gap: 12px;">
+                    <button type="button" id="checkoutBtn" class="btn btn-primary"><i class="fas fa-file-invoice-dollar"></i> Generate Invoices & Record Payments</button>
+                </div>
+            </div>
+
+            <!-- Invoice Preview Modal -->
+            <div id="invoiceModal" class="modal hidden">
+                <div class="modal-content" id="invoiceModalContent">
+                    <div class="modal-header">
+                        <h3><i class="fas fa-file-invoice"></i> Invoices Generated</h3>
+                        <button class="close" id="invoiceModalClose">&times;</button>
+                    </div>
+                    <div class="modal-body" id="invoicePreview">
+                        <!-- filled by JS -->
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" id="invoicePrintBtn"><i class="fas fa-print"></i> Print</button>
+                        <button class="btn" id="invoiceDoneBtn">Close</button>
+                    </div>
+                </div>
+            </div>
+
             <!-- Search and Filter Section -->
             <div class="search-section">
                 <h3><i class="fas fa-search"></i> Search & Filter</h3>
                 <div class="search-grid">
                     <div class="form-group">
-                        <label for="filterStudentId">Student ID</label>
-                        <input type="number" id="filterStudentId" placeholder="Enter student ID" />
+                        <label for="filterStudent">Student</label>
+                        <input type="text" id="filterStudent" placeholder="Search by name or ID" autocomplete="off" />
+                        <div id="filterStudentResults" class="dropdown-results"></div>
                     </div>
                     <div class="form-group">
                         <label for="filterStatus">Status</label>
@@ -451,13 +734,14 @@
                                 <th><i class="fas fa-user"></i> Student</th>
                                 <th><i class="fas fa-dollar-sign"></i> Amount</th>
                                 <th><i class="fas fa-calendar"></i> Payment Date</th>
+                                <th><i class="fas fa-calendar-alt"></i> Month</th>
                                 <th><i class="fas fa-info-circle"></i> Status</th>
                                 <th><i class="fas fa-cog"></i> Actions</th>
                             </tr>
                         </thead>
                         <tbody id="fees-body">
                             <tr>
-                                <td colspan="6" class="empty-state">
+                                <td colspan="7" class="empty-state">
                                     <i class="fas fa-spinner fa-spin"></i>
                                     <p>Loading fee records...</p>
                                 </td>

@@ -25,9 +25,6 @@ async function loadMetrics() {
         document.getElementById('totalStudents').textContent = totalStudents;
         updateChangeIndicator('studentsChange', totalStudents, totalStudents - 5);
         
-        // Mock active classes (same as total for now)
-        document.getElementById('activeClasses').textContent = totalClasses;
-        updateChangeIndicator('activeChange', totalClasses, totalClasses - 1);
         
     } catch (error) {
         console.error('Error loading metrics:', error);

@@ -26,11 +26,17 @@ router.post('/', async (req, res) => {
 // List students with basic filters and pagination
 router.get('/', async (req, res) => {
   try {
-    const { name, roll, class: className, page = 1, limit = 10 } = req.query;
+    const { name, roll, q, class: className, prefix, page = 1, limit = 10 } = req.query;
+    const usePrefix = prefix === '1' || prefix === 'true';
     const filters = [];
     const params = [];
-    if (name) { filters.push('NAME LIKE ?'); params.push(`%${name}%`); }
-    if (roll) { filters.push('ROLL_NUMBER LIKE ?'); params.push(`%${roll}%`); }
+    if (q) {
+      const like = usePrefix ? `${q}%` : `%${q}%`;
+      filters.push('(NAME LIKE ? OR ROLL_NUMBER LIKE ?)');
+      params.push(like, like);
+    }
+    if (name) { filters.push('NAME LIKE ?'); params.push(usePrefix ? `${name}%` : `%${name}%`); }
+    if (roll) { filters.push('ROLL_NUMBER LIKE ?'); params.push(usePrefix ? `${roll}%` : `%${roll}%`); }
     if (className) { filters.push('CLASS = ?'); params.push(className); }
     const where = filters.length ? `WHERE ${filters.join(' AND ')}` : '';
     const pageNum = Math.max(1, parseInt(page, 10) || 1);
@@ -45,7 +51,15 @@ router.get('/', async (req, res) => {
       `SELECT COUNT(*) as total FROM Students ${where}`,
       params
     );
-    res.json({ data: rows, page: pageNum, limit: limitNum, total: countRows[0].total });
+    res.json({ 
+        data: rows, 
+        pagination: { 
+            page: pageNum, 
+            limit: limitNum, 
+            total: countRows[0].total, 
+            pages: Math.ceil(countRows[0].total / limitNum) 
+        } 
+    });
   } catch (err) {
     res.status(500).json({ message: 'Server error', error: err.message });
   }

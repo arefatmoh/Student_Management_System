@@ -1,8 +1,6 @@
 let currentStudents = [];
 let currentAttendanceData = {};
 let currentDate = new Date().toISOString().split('T')[0];
-let currentMonth = new Date().getMonth() + 1;
-let currentYear = new Date().getFullYear();
 
 // Initialize page
 document.addEventListener('DOMContentLoaded', function() {
@@ -12,59 +10,43 @@ document.addEventListener('DOMContentLoaded', function() {
     // Load classes for filters
     loadClasses();
     
-    // Load calendar for current month
-    loadCalendar();
+    // Load students for bulk marking
+    loadStudentsForBulk();
 });
 
 // Load classes for dropdowns
 async function loadClasses() {
     try {
+        console.log('Loading classes...');
         const response = await apiFetch('/api/classes');
+        console.log('Classes response:', response);
+        
         const classes = response || [];
         
         const bulkFilter = document.getElementById('bulk-class-filter');
-        const calendarFilter = document.getElementById('calendar-class-filter');
+        
+        if (!bulkFilter) {
+            console.error('Class filter element not found');
+            return;
+        }
         
         // Clear existing options
         bulkFilter.innerHTML = '<option value="all">All Classes</option>';
-        calendarFilter.innerHTML = '<option value="all">All Classes</option>';
         
         classes.forEach(cls => {
-            const option1 = document.createElement('option');
-            option1.value = cls.NAME;
-            option1.textContent = cls.NAME;
-            bulkFilter.appendChild(option1);
-            
-            const option2 = document.createElement('option');
-            option2.value = cls.NAME;
-            option2.textContent = cls.NAME;
-            calendarFilter.appendChild(option2);
+            const option = document.createElement('option');
+            option.value = cls.NAME;
+            option.textContent = cls.NAME;
+            bulkFilter.appendChild(option);
         });
+        
+        console.log(`Loaded ${classes.length} classes`);
     } catch (error) {
         console.error('Error loading classes:', error);
-        showToast('Failed to load classes', 'error');
+        showToast(`Failed to load classes: ${error.message || 'Unknown error'}`, 'error');
     }
 }
 
-// Switch between tabs
-function switchTab(tabName) {
-    // Hide all tabs
-    document.querySelectorAll('.tab-content').forEach(tab => {
-        tab.classList.remove('active');
-    });
-    document.querySelectorAll('.tab-button').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    
-    // Show selected tab
-    document.getElementById(tabName + '-tab').classList.add('active');
-    event.target.classList.add('active');
-    
-    // Load data for calendar tab if switching to it
-    if (tabName === 'calendar') {
-        loadCalendar();
-    }
-}
 
 // Load students for bulk marking
 async function loadStudentsForBulk() {
@@ -76,21 +58,44 @@ async function loadStudentsForBulk() {
         return;
     }
     
+    // Show loading state
+    const container = document.getElementById('student-list');
+    container.innerHTML = `
+        <tr>
+            <td colspan="5" class="loading-state">
+                <div class="loading-spinner"></div>
+                <h3>Loading Students...</h3>
+                <p>Please wait while we fetch the student data</p>
+            </td>
+        </tr>
+    `;
+    
     try {
         currentDate = date;
         
         // Get students
         let url = '/api/students?limit=1000';
         if (classFilter !== 'all') {
-            url += `&class=${classFilter}`;
+            url += `&class=${encodeURIComponent(classFilter)}`;
         }
         
+        console.log('Loading students from:', url);
         const response = await apiFetch(url);
-        currentStudents = response.students || [];
+        console.log('Students response:', response);
         
-        // Get existing attendance for this date
-        const attendanceResponse = await apiFetch(`/api/attendance?date=${date}&limit=1000`);
-        const existingAttendance = attendanceResponse.attendance || [];
+        currentStudents = response.data || [];
+        
+        if (currentStudents.length === 0) {
+            showToast('No students found for the selected class', 'warning');
+            renderStudentList();
+            return;
+        }
+        
+        // Get existing attendance for this date - use the same API as regular attendance
+        const attendanceResponse = await apiFetch(`/api/attendance?from=${date}&to=${date}&limit=1000`);
+        const existingAttendance = attendanceResponse.data || [];
+        
+        console.log('Existing attendance for date', date, ':', existingAttendance);
         
         // Create attendance lookup
         currentAttendanceData = {};
@@ -102,7 +107,8 @@ async function loadStudentsForBulk() {
         showToast(`Loaded ${currentStudents.length} students`, 'success');
     } catch (error) {
         console.error('Error loading students:', error);
-        showToast('Failed to load students', 'error');
+        showToast(`Failed to load students: ${error.message || 'Unknown error'}`, 'error');
+        renderStudentList();
     }
 }
 
@@ -111,54 +117,193 @@ function renderStudentList() {
     const container = document.getElementById('student-list');
     
     if (currentStudents.length === 0) {
-        container.innerHTML = '<p class="text-center">No students found</p>';
+        container.innerHTML = `
+            <tr>
+                <td colspan="5" class="empty-state">
+                    <i class="fas fa-users"></i>
+                    <h3>No Students Found</h3>
+                    <p>No students found for the selected criteria</p>
+                </td>
+            </tr>
+        `;
+        updateSummaryCards();
         return;
     }
     
     container.innerHTML = currentStudents.map(student => {
         const currentStatus = currentAttendanceData[student.STUDENT_ID] || 'Present';
+        
         return `
-            <div class="student-item">
-                <div class="student-info">
-                    <strong>${student.NAME}</strong> (${student.ROLL_NUMBER}) - ${student.CLASS}
-                </div>
-                <div class="student-actions">
-                    <button class="attendance-toggle ${currentStatus === 'Present' ? 'present' : ''}" 
-                            onclick="toggleAttendance(${student.STUDENT_ID}, 'Present')">
-                        Present
-                    </button>
-                    <button class="attendance-toggle ${currentStatus === 'Absent' ? 'absent' : ''}" 
-                            onclick="toggleAttendance(${student.STUDENT_ID}, 'Absent')">
-                        Absent
-                    </button>
-                </div>
-            </div>
+            <tr>
+                <td>
+                    <input type="checkbox" class="student-checkbox" 
+                           data-student-id="${student.STUDENT_ID}" 
+                           onchange="updateSelectAllState()">
+                </td>
+                <td>
+                    <div class="student-info">
+                        <div class="student-name">${student.NAME}</div>
+                        <div class="student-details">
+                            <span><i class="fas fa-id-card"></i> ID: ${student.STUDENT_ID}</span>
+                        </div>
+                    </div>
+                </td>
+                <td>
+                    <span class="roll-number">${student.ROLL_NUMBER}</span>
+                </td>
+                <td>
+                    <span class="class-name">${student.CLASS}</span>
+                </td>
+                <td>
+                    <div class="attendance-controls">
+                        <div class="status-toggle">
+                            <div class="status-option">
+                                <input type="radio" 
+                                       name="status_${student.STUDENT_ID}" 
+                                       value="Present" 
+                                       id="present_${student.STUDENT_ID}"
+                                       ${currentStatus === 'Present' ? 'checked' : ''}
+                                       onchange="updateAttendance(${student.STUDENT_ID}, 'Present')">
+                                <label for="present_${student.STUDENT_ID}" class="present">
+                                    <i class="fas fa-check"></i> Present
+                                </label>
+                            </div>
+                            <div class="status-option">
+                                <input type="radio" 
+                                       name="status_${student.STUDENT_ID}" 
+                                       value="Absent" 
+                                       id="absent_${student.STUDENT_ID}"
+                                       ${currentStatus === 'Absent' ? 'checked' : ''}
+                                       onchange="updateAttendance(${student.STUDENT_ID}, 'Absent')">
+                                <label for="absent_${student.STUDENT_ID}" class="absent">
+                                    <i class="fas fa-times"></i> Absent
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
         `;
     }).join('');
+    
+    updateSummaryCards();
+    updateButtonText(0); // Reset button text when list is rendered
 }
 
-// Toggle attendance status for a student
-function toggleAttendance(studentId, status) {
+// Update attendance status for a student
+function updateAttendance(studentId, status) {
     currentAttendanceData[studentId] = status;
-    renderStudentList();
+    updateSummaryCards();
 }
 
-// Mark all students as present
+// Toggle attendance status for a student (legacy function)
+function toggleAttendance(studentId, status) {
+    updateAttendance(studentId, status);
+}
+
+// Update summary cards
+function updateSummaryCards() {
+    const totalStudents = currentStudents.length;
+    const presentCount = Object.values(currentAttendanceData).filter(status => status === 'Present').length;
+    const absentCount = Object.values(currentAttendanceData).filter(status => status === 'Absent').length;
+    
+    document.getElementById('total-students').textContent = totalStudents;
+    document.getElementById('present-count').textContent = presentCount;
+    document.getElementById('absent-count').textContent = absentCount;
+}
+
+// Toggle select all checkbox
+function toggleSelectAll() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+    
+    studentCheckboxes.forEach(checkbox => {
+        checkbox.checked = selectAllCheckbox.checked;
+    });
+}
+
+// Update select all checkbox state
+function updateSelectAllState() {
+    const selectAllCheckbox = document.getElementById('select-all');
+    const studentCheckboxes = document.querySelectorAll('.student-checkbox');
+    const checkedCount = document.querySelectorAll('.student-checkbox:checked').length;
+    
+    if (checkedCount === 0) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = false;
+    } else if (checkedCount === studentCheckboxes.length) {
+        selectAllCheckbox.indeterminate = false;
+        selectAllCheckbox.checked = true;
+    } else {
+        selectAllCheckbox.indeterminate = true;
+    }
+    
+    // Update button text based on selection
+    updateButtonText(checkedCount);
+}
+
+// Update button text based on selection
+function updateButtonText(selectedCount) {
+    const markPresentText = document.getElementById('markPresentText');
+    const markAbsentText = document.getElementById('markAbsentText');
+    
+    if (selectedCount > 0) {
+        markPresentText.textContent = `Mark Selected Present (${selectedCount})`;
+        markAbsentText.textContent = `Mark Selected Absent (${selectedCount})`;
+    } else {
+        markPresentText.textContent = 'Mark All Present';
+        markAbsentText.textContent = 'Mark All Absent';
+    }
+}
+
+// Mark students as present (selected or all)
 function markAllPresent() {
-    currentStudents.forEach(student => {
-        currentAttendanceData[student.STUDENT_ID] = 'Present';
-    });
-    renderStudentList();
-    showToast('All students marked as present', 'success');
+    const selectedStudents = getSelectedStudents();
+    
+    if (selectedStudents.length > 0) {
+        // Mark only selected students
+        selectedStudents.forEach(studentId => {
+            currentAttendanceData[studentId] = 'Present';
+        });
+        renderStudentList();
+        showToast(`${selectedStudents.length} selected students marked as present`, 'success');
+    } else {
+        // Mark all students
+        currentStudents.forEach(student => {
+            currentAttendanceData[student.STUDENT_ID] = 'Present';
+        });
+        renderStudentList();
+        showToast('All students marked as present', 'success');
+    }
 }
 
-// Mark all students as absent
+// Mark students as absent (selected or all)
 function markAllAbsent() {
-    currentStudents.forEach(student => {
-        currentAttendanceData[student.STUDENT_ID] = 'Absent';
-    });
-    renderStudentList();
-    showToast('All students marked as absent', 'success');
+    const selectedStudents = getSelectedStudents();
+    
+    if (selectedStudents.length > 0) {
+        // Mark only selected students
+        selectedStudents.forEach(studentId => {
+            currentAttendanceData[studentId] = 'Absent';
+        });
+        renderStudentList();
+        showToast(`${selectedStudents.length} selected students marked as absent`, 'success');
+    } else {
+        // Mark all students
+        currentStudents.forEach(student => {
+            currentAttendanceData[student.STUDENT_ID] = 'Absent';
+        });
+        renderStudentList();
+        showToast('All students marked as absent', 'success');
+    }
+}
+
+// Get selected student IDs from checkboxes
+function getSelectedStudents() {
+    const selectedCheckboxes = document.querySelectorAll('.student-checkbox:checked');
+    return Array.from(selectedCheckboxes).map(checkbox => 
+        parseInt(checkbox.getAttribute('data-student-id'))
+    );
 }
 
 // Save bulk attendance
@@ -171,21 +316,33 @@ async function saveBulkAttendance() {
     const classFilter = document.getElementById('bulk-class-filter').value;
     
     try {
-        const attendanceData = Object.entries(currentAttendanceData).map(([studentId, status]) => ({
-            studentId: parseInt(studentId),
-            status
+        // Use the same API as regular attendance management
+        const attendanceRecords = Object.entries(currentAttendanceData).map(([studentId, status]) => ({
+            STUDENT_ID: parseInt(studentId),
+            ATTENDANCE_DATE: currentDate,
+            STATUS: status
         }));
         
-        const response = await apiFetch('/api/attendance-bulk/bulk', {
-            method: 'POST',
-            body: JSON.stringify({
-                date: currentDate,
-                classFilter,
-                attendanceData
-            })
-        });
+        console.log('Saving bulk attendance:', attendanceRecords);
         
-        showToast(`Attendance saved for ${response.recordsCount} students`, 'success');
+        // Save each attendance record using the regular attendance API
+        let savedCount = 0;
+        for (const record of attendanceRecords) {
+            try {
+                const response = await apiFetch('/api/attendance', {
+                    method: 'POST',
+                    body: JSON.stringify(record)
+                });
+                savedCount++;
+            } catch (error) {
+                console.error('Error saving individual attendance record:', error);
+            }
+        }
+        
+        showToast(`Attendance saved for ${savedCount} students`, 'success');
+        
+        // Auto-clear after successful save
+        clearBulkAttendance();
         
         // Reload the list to show updated data
         loadStudentsForBulk();
@@ -195,156 +352,44 @@ async function saveBulkAttendance() {
     }
 }
 
-// Calendar functions
-async function loadCalendar() {
-    const classFilter = document.getElementById('calendar-class-filter').value;
+// Clear bulk attendance form
+function clearBulkAttendance() {
+    // Reset attendance data
+    currentAttendanceData = {};
     
-    try {
-        const response = await apiFetch(`/api/attendance-bulk/calendar?year=${currentYear}&month=${currentMonth}&classFilter=${classFilter}`);
-        
-        currentStudents = response.students || [];
-        renderCalendar(response.calendarData, currentYear, currentMonth);
-        updateMonthDisplay();
-    } catch (error) {
-        console.error('Error loading calendar:', error);
-        showToast('Failed to load calendar', 'error');
-    }
-}
-
-// Render calendar
-function renderCalendar(calendarData, year, month) {
-    const container = document.getElementById('calendar-container');
-    const firstDay = new Date(year, month - 1, 1);
-    const lastDay = new Date(year, month, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
+    // Reset form fields
+    document.getElementById('bulk-date').value = new Date().toISOString().split('T')[0];
+    document.getElementById('bulk-class-filter').value = 'all';
     
-    // Day headers
-    const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-    let html = dayHeaders.map(day => `<div class="calendar-day-header">${day}</div>`).join('');
+    // Clear student list
+    currentStudents = [];
     
-    // Previous month's trailing days
-    const prevMonth = new Date(year, month - 2, 0);
-    for (let i = startingDayOfWeek - 1; i >= 0; i--) {
-        const day = prevMonth.getDate() - i;
-        html += `<div class="calendar-day other-month">${day}</div>`;
+    // Reset summary cards
+    updateSummaryCards();
+    
+    // Reset select all checkbox
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+        selectAllCheckbox.checked = false;
+        selectAllCheckbox.indeterminate = false;
     }
     
-    // Current month's days
-    const today = new Date();
-    for (let day = 1; day <= daysInMonth; day++) {
-        const dateStr = `${year}-${month.toString().padStart(2, '0')}-${day.toString().padStart(2, '0')}`;
-        const isToday = today.getFullYear() === year && today.getMonth() === month - 1 && today.getDate() === day;
-        const hasAttendance = calendarData[dateStr];
-        
-        let dayClass = 'calendar-day';
-        if (isToday) dayClass += ' today';
-        if (hasAttendance) dayClass += ' has-attendance';
-        
-        let attendanceIndicator = '';
-        if (hasAttendance) {
-            const presentCount = hasAttendance.filter(s => s.status === 'Present').length;
-            const absentCount = hasAttendance.filter(s => s.status === 'Absent').length;
-            const totalCount = hasAttendance.length;
-            
-            if (presentCount === totalCount) {
-                attendanceIndicator = `<div class="attendance-indicator present-indicator">${presentCount}</div>`;
-            } else if (absentCount === totalCount) {
-                attendanceIndicator = `<div class="attendance-indicator absent-indicator">${absentCount}</div>`;
-            } else {
-                attendanceIndicator = `<div class="attendance-indicator" style="background: #f59e0b; color: white;">${presentCount}/${totalCount}</div>`;
-            }
-        }
-        
-        html += `
-            <div class="calendar-day ${dayClass}" onclick="showAttendanceDetails('${dateStr}')">
-                ${day}
-                ${attendanceIndicator}
-            </div>
-        `;
-    }
-    
-    // Next month's leading days
-    const remainingDays = 42 - (startingDayOfWeek + daysInMonth);
-    for (let day = 1; day <= remainingDays; day++) {
-        html += `<div class="calendar-day other-month">${day}</div>`;
-    }
-    
-    container.innerHTML = html;
+    // Show empty state
+    const container = document.getElementById('student-list');
+    container.innerHTML = `
+        <tr>
+            <td colspan="5" class="empty-state">
+                <i class="fas fa-users"></i>
+                <h3>No Students Loaded</h3>
+                <p>Click "Load Students" to begin marking attendance</p>
+            </td>
+        </tr>
+    `;
 }
 
-// Update month display
-function updateMonthDisplay() {
-    const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
-        'July', 'August', 'September', 'October', 'November', 'December'];
-    document.getElementById('current-month').textContent = `${monthNames[currentMonth - 1]} ${currentYear}`;
-}
 
-// Navigate to previous month
-function previousMonth() {
-    currentMonth--;
-    if (currentMonth < 1) {
-        currentMonth = 12;
-        currentYear--;
-    }
-    loadCalendar();
-}
 
-// Navigate to next month
-function nextMonth() {
-    currentMonth++;
-    if (currentMonth > 12) {
-        currentMonth = 1;
-        currentYear++;
-    }
-    loadCalendar();
-}
 
-// Show attendance details for a specific date
-async function showAttendanceDetails(date) {
-    try {
-        const response = await apiFetch(`/api/attendance-bulk/calendar?year=${date.split('-')[0]}&month=${date.split('-')[1]}&classFilter=all`);
-        const dayData = response.calendarData[date] || [];
-        
-        const content = document.getElementById('attendance-details-content');
-        content.innerHTML = `
-            <h3>Attendance for ${new Date(date).toLocaleDateString()}</h3>
-            <div class="table-container">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Student</th>
-                            <th>Roll Number</th>
-                            <th>Class</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${dayData.map(student => `
-                            <tr>
-                                <td>${student.name}</td>
-                                <td>${student.rollNumber}</td>
-                                <td>${student.class}</td>
-                                <td><span class="status ${student.status === 'Present' ? 'status-paid' : 'status-overdue'}">${student.status}</span></td>
-                            </tr>
-                        `).join('')}
-                    </tbody>
-                </table>
-            </div>
-        `;
-        
-        document.getElementById('attendance-details-modal').style.display = 'block';
-    } catch (error) {
-        console.error('Error loading attendance details:', error);
-        showToast('Failed to load attendance details', 'error');
-    }
-}
-
-// Close attendance details modal
-function closeAttendanceDetailsModal() {
-    document.getElementById('attendance-details-modal').style.display = 'none';
-}
 
 // Event listeners
 document.getElementById('bulk-class-filter').addEventListener('change', loadStudentsForBulk);
-document.getElementById('calendar-class-filter').addEventListener('change', loadCalendar);
