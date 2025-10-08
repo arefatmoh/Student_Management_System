@@ -23,7 +23,8 @@ async function loadMetrics() {
         
         // Load fees data
         const fees = await fetchJson('/api/reports/fees');
-        const totalRevenue = (fees && typeof fees.total !== 'undefined') ? fees.total : (fees && fees.totalPaid ? fees.totalPaid : 0);
+        const totalRevenueRaw = (fees && typeof fees.total !== 'undefined') ? fees.total : (fees && fees.totalPaid ? fees.totalPaid : 0);
+        const totalRevenue = Number(totalRevenueRaw) || 0;
         document.getElementById('totalRevenue').textContent = `$${totalRevenue.toFixed(2)}`;
         updateChangeIndicator('revenueChange', totalRevenue, totalRevenue - 100);
         
