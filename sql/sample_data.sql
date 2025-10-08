@@ -183,7 +183,6 @@ INSERT INTO Invoices (INVOICE_ID, STUDENT_ID, INVOICE_NUMBER, DESCRIPTION, TOTAL
 INSERT INTO Payments (PAYMENT_ID, INVOICE_ID, AMOUNT, PAYMENT_DATE, PAYMENT_METHOD, NOTES, CREATED_AT) VALUES
   (8, 12, 300.00, '2024-10-04', 'Bank Transfer', 'Partial', '2024-10-04 15:00:00');
 
--- Overdue without payment (Nahom Bekele - id 8 already has invoice 6 overdue)
 
 -- Done.
 
