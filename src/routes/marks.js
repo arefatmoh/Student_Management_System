@@ -2,6 +2,22 @@ const express = require('express');
 const router = express.Router();
 const { getPool } = require('../db');
 
+// List all marks (with student and subject names)
+router.get('/', async (req, res) => {
+  try {
+    const [rows] = await getPool().query(
+      `SELECT m.*, s.NAME AS SUBJECT_NAME, st.NAME AS STUDENT_NAME, st.ROLL_NUMBER
+       FROM Marks m
+       JOIN Subjects s ON s.SUBJECT_ID = m.SUBJECT_ID
+       JOIN Students st ON st.STUDENT_ID = m.STUDENT_ID
+       ORDER BY m.MARK_ID DESC`
+    );
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ message: 'Server error', error: err.message });
+  }
+});
+
 // Record or update a mark (upsert by unique key)
 router.post('/', async (req, res) => {
   try {

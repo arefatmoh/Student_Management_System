@@ -439,23 +439,34 @@ function setDefaultDates() {
 
 // Event listeners
 document.addEventListener('DOMContentLoaded', function() {
-    // Report generation buttons
-    document.getElementById('attRun').addEventListener('click', generateAttendanceReport);
-    document.getElementById('feeRun').addEventListener('click', generateFeesReport);
-    document.getElementById('perfRun').addEventListener('click', generatePerformanceReport);
-    document.getElementById('customRun').addEventListener('click', generateCustomReport);
-    
-    // Export buttons
-    document.getElementById('attExport').addEventListener('click', exportAttendanceReport);
-    document.getElementById('feeExport').addEventListener('click', exportFeesReport);
-    document.getElementById('perfExport').addEventListener('click', exportPerformanceReport);
-    document.getElementById('customExport').addEventListener('click', () => {
+    // Report generation buttons (guarded)
+    const attRun = document.getElementById('attRun');
+    if (attRun) attRun.addEventListener('click', generateAttendanceReport);
+    const feeRun = document.getElementById('feeRun');
+    if (feeRun) feeRun.addEventListener('click', generateFeesReport);
+    const perfRun = document.getElementById('perfRun');
+    if (perfRun) perfRun.addEventListener('click', generatePerformanceReport);
+    const customRun = document.getElementById('customRun');
+    if (customRun) customRun.addEventListener('click', generateCustomReport);
+
+    // Export buttons (guarded)
+    const attExport = document.getElementById('attExport');
+    if (attExport) attExport.addEventListener('click', exportAttendanceReport);
+    const feeExport = document.getElementById('feeExport');
+    if (feeExport) feeExport.addEventListener('click', exportFeesReport);
+    const perfExport = document.getElementById('perfExport');
+    if (perfExport) perfExport.addEventListener('click', exportPerformanceReport);
+    const customExport = document.getElementById('customExport');
+    if (customExport) customExport.addEventListener('click', () => {
         showToast('Exporting custom report...', 'info');
     });
-    
-    // Set default dates
-    setDefaultDates();
-    
-    // Load initial metrics
-    loadMetrics();
+
+    // Set default dates if inputs exist
+    const attFrom = document.getElementById('attFrom');
+    if (attFrom) setDefaultDates();
+
+    // Load initial metrics (only if metrics cards exist)
+    if (document.getElementById('totalStudents')) {
+        loadMetrics();
+    }
 });
