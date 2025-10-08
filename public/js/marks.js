@@ -319,7 +319,7 @@ async function loadMarks() {
                 <tr>
                     <td>
                         <a href="/students.html?student=${mark.STUDENT_ID}" class="student-link">
-                            <i class="fas fa-user"></i> Student #${mark.STUDENT_ID}
+                            <i class="fas fa-user"></i> ${mark.STUDENT_NAME || ('#' + mark.STUDENT_ID)}
                         </a>
                     </td>
                     <td><strong>${mark.SUBJECT_NAME || 'Unknown Subject'}</strong></td>
