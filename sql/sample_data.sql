@@ -19,8 +19,8 @@ SET FOREIGN_KEY_CHECKS = 1;
 
 -- Users
 INSERT INTO Users (USER_ID, USERNAME, PASSWORD_HASH, ROLE) VALUES
-  (1, 'admin', '$2b$10$T8Vp1lJk6W8qQfF6c7YH7eQxJrB6qvZ3v0x2cVv6m7oJf6n0Q3a5a', 'admin'), -- placeholder hash
-  (2, 'teacher', '$2b$10$T8Vp1lJk6W8qQfF6c7YH7eQxJrB6qvZ3v0x2cVv6m7oJf6n0Q3a5a', 'teacher');
+  (1, 'admin', '$2b$10$5FsWkftWdkh2oluGfKCKJ.nWtcsDZfsWgjawpwH3pQUQIFXeT2Pbu', 'admin'), -- admin123
+  (2, 'teacher', '$2b$10$vkvQsu3BWmczMew.Qr0c6ewIdDbOAGqUvRsomOc8fFnGBQ6qpXFDC', 'teacher'); -- teacher123
 
 -- Classes
 INSERT INTO Classes (CLASS_ID, NAME, DESCRIPTION) VALUES
