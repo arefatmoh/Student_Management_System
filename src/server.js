@@ -2,6 +2,9 @@
 const dotenv = require('dotenv');
 dotenv.config();
 
+// Import database initializer
+const DatabaseInitializer = require('./database/init');
+
 const app = express();
 app.use(express.json());
 
@@ -77,12 +80,42 @@ const path = require('path');
 app.use(express.static(path.join(__dirname, '..', 'public')));
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, async () => {
+
+// Global database initializer instance
+let dbInitializer = null;
+
+// Initialize database and start server
+async function startServer() {
   try {
+    console.log('🚀 Starting Student Management System...');
+    
+    // Initialize database connection
     await initDb();
-    console.log('Database initialized');
-  } catch (e) {
-    console.error('DB init error:', e);
+    console.log('✅ Database connection initialized');
+    
+    // Create database initializer
+    dbInitializer = new DatabaseInitializer();
+    await dbInitializer.createPool();
+    
+    // Run automatic database initialization
+    console.log('🔧 Starting automatic database initialization...');
+    await dbInitializer.initializeDatabase();
+    
+    console.log('🎉 Database initialization completed successfully!');
+    console.log('🎯 Your Student Management System is ready!');
+    console.log('📋 Default login credentials:');
+    console.log('   🔑 Admin: admin / admin123');
+    console.log('   🔑 Teacher: teacher / teacher123');
+    console.log('   🌐 Open your browser and navigate to the URL below');
+    
+  } catch (error) {
+    console.error('❌ Server startup error:', error);
+    console.log('⚠️ Server is running but database may not be properly initialized');
+    console.log('   You may need to manually set up the database');
   }
-  console.log(`Server running on http://localhost:${PORT}`);
-});
+  
+  console.log(`🌐 Server running on http://localhost:${PORT}`);
+}
+
+// Start the server
+app.listen(PORT, startServer);
