@@ -1,26 +1,307 @@
 // Admin Page JavaScript
+console.log('Admin.js loaded successfully!');
 let allUsers = [];
 let filteredUsers = [];
 
+// Handle Create User - moved to top for accessibility
+async function handleCreateUser(e) {
+    console.log('🎯 === HANDLE CREATE USER FUNCTION ENTERED ===');
+    console.log('🎯 Event object:', e);
+    console.log('🎯 Function called at:', new Date().toISOString());
+    console.log('🎯 This is a test log to verify function execution');
+    
+    // Test if we can access global variables
+    console.log('🎯 allUsers variable:', allUsers);
+    console.log('🎯 filteredUsers variable:', filteredUsers);
+    
+    e.preventDefault();
+    
+    console.log('🎯 Getting form elements...');
+    const usernameEl = document.getElementById('username');
+    const passwordEl = document.getElementById('password');
+    const roleEl = document.getElementById('role');
+    const profilePictureEl = document.getElementById('profilePicture');
+    
+    console.log('🎯 Form elements found:');
+    console.log('  - Username element:', usernameEl);
+    console.log('  - Password element:', passwordEl);
+    console.log('  - Role element:', roleEl);
+    console.log('  - Profile picture element:', profilePictureEl);
+    
+    const username = usernameEl ? usernameEl.value : '';
+    const password = passwordEl ? passwordEl.value : '';
+    const role = roleEl ? roleEl.value : '';
+    const profilePicture = profilePictureEl ? profilePictureEl.files[0] : null;
+    
+    console.log('=== FRONTEND USER CREATION DEBUG ===');
+    console.log('📝 Form data extracted:');
+    console.log('  - Username:', username);
+    console.log('  - Password:', password ? '***' + password.slice(-2) : 'EMPTY');
+    console.log('  - Role:', role);
+    console.log('  - Profile Picture File:', profilePicture);
+    
+    if (profilePicture) {
+        console.log('📸 Profile Picture Details:');
+        console.log('  - File Name:', profilePicture.name);
+        console.log('  - File Size:', profilePicture.size, 'bytes');
+        console.log('  - File Type:', profilePicture.type);
+        console.log('  - Last Modified:', new Date(profilePicture.lastModified));
+    } else {
+        console.log('❌ No profile picture selected');
+    }
+    
+    if (!username || !password || !role) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    if (password.length < 6) {
+        showToast('Password must be at least 6 characters long', 'error');
+        return;
+    }
+    
+    // Check if username already exists
+    console.log('🎯 Checking username uniqueness...');
+    console.log('🎯 allUsers array:', allUsers);
+    console.log('🎯 allUsers length:', allUsers ? allUsers.length : 'undefined');
+    
+    if (allUsers && allUsers.some(user => user.username === username)) {
+        console.log('🎯 Username already exists, showing error');
+        showToast('Username already exists', 'error');
+        return;
+    }
+    
+    console.log('🎯 Username is unique, proceeding...');
+    
+    try {
+        console.log('🎯 Starting try block...');
+        showLoading();
+        console.log('🎯 Loading state set, proceeding with FormData...');
+        
+        // Create FormData for file upload
+        console.log('🔧 Creating FormData...');
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+        formData.append('role', role);
+        
+        if (profilePicture) {
+            formData.append('profilePicture', profilePicture);
+            console.log('✅ Added profile picture to FormData:', profilePicture.name, profilePicture.size, 'bytes');
+        } else {
+            console.log('⚠️ No profile picture to add to FormData');
+        }
+        
+        console.log('📦 FormData contents:');
+        for (let [key, value] of formData.entries()) {
+            if (value instanceof File) {
+                console.log(`  ${key}: File(${value.name}, ${value.size} bytes, ${value.type})`);
+            } else {
+                console.log(`  ${key}: ${value}`);
+            }
+        }
+        
+        console.log('🚀 Sending request to /api/users...');
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            body: formData
+        });
+        
+        console.log('📡 Server response status:', response.status, response.statusText);
+        const responseData = await response.json();
+        console.log('📄 Server response data:', responseData);
+        
+        if (responseData.user) {
+            console.log('👤 Created user details:');
+            console.log('  - ID:', responseData.user.id);
+            console.log('  - Username:', responseData.user.username);
+            console.log('  - Role:', responseData.user.role);
+            console.log('  - Profile Picture:', responseData.user.PROFILE_PICTURE);
+        }
+        
+        if (response.ok) {
+            showToast('User created successfully!', 'success');
+            clearForm();
+            await loadUsers();
+        } else {
+            showToast(responseData.message || 'Failed to create user', 'error');
+        }
+    } catch (error) {
+        console.error('🎯 ❌ Error in handleCreateUser try block:', error);
+        console.error('🎯 ❌ Error message:', error.message);
+        console.error('🎯 ❌ Error stack:', error.stack);
+        showToast('Failed to create user', 'error');
+    } finally {
+        console.log('🎯 Finally block executing...');
+        hideLoading();
+        console.log('=== END FRONTEND USER CREATION DEBUG ===');
+    }
+}
+
+// Make function available globally for debugging
+window.handleCreateUser = handleCreateUser;
+
+// Test function to verify function calls work
+window.testFunction = function() {
+    console.log('🧪 TEST FUNCTION CALLED SUCCESSFULLY!');
+    return 'test completed';
+};
+
+// Alternative function to test if the issue is with the original function
+window.createUserAlternative = async function(e) {
+    console.log('🔄 ALTERNATIVE FUNCTION CALLED!');
+    console.log('🔄 Event:', e);
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const role = document.getElementById('role').value;
+    const profilePicture = document.getElementById('profilePicture').files[0];
+    
+    console.log('🔄 Form data:', { username, password: '***', role, profilePicture: profilePicture ? profilePicture.name : 'none' });
+    
+    if (!username || !password || !role) {
+        showToast('Please fill in all required fields', 'error');
+        return;
+    }
+    
+    try {
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+        formData.append('role', role);
+        if (profilePicture) {
+            formData.append('profilePicture', profilePicture);
+        }
+        
+        console.log('🔄 Sending request...');
+        const response = await fetch('/api/users', {
+            method: 'POST',
+            body: formData
+        });
+        
+        const result = await response.json();
+        console.log('🔄 Response:', result);
+        
+        if (response.ok) {
+            showToast('User created successfully!', 'success');
+            // Clear form
+            clearForm();
+            // Reload users list
+            await loadUsers();
+        } else {
+            showToast('Error: ' + (result.message || 'Failed to create user'), 'error');
+        }
+    } catch (error) {
+        console.error('🔄 Error:', error);
+        showToast('Error: ' + error.message, 'error');
+    }
+};
+
 // DOM Content Loaded
 document.addEventListener('DOMContentLoaded', async () => {
-    await ensureAuth();
-    await loadUsers();
-    setupEventListeners();
-    setupProfilePictureUpload();
+    console.log('DOM Content Loaded - Starting admin page initialization');
+    
+    try {
+        await loadUsers();
+        console.log('✅ Users loaded');
+        
+        console.log('🔧 Setting up event listeners...');
+        setupEventListeners();
+        console.log('✅ Event listeners setup complete');
+        
+        console.log('🔧 Setting up profile picture upload...');
+        setupProfilePictureUpload();
+        console.log('✅ Profile picture upload setup complete');
+        
+        // Add additional debug for submit button
+        const submitButton = document.querySelector('button[type="submit"]');
+        if (submitButton) {
+            console.log('Submit button found:', submitButton);
+            submitButton.addEventListener('click', async (e) => {
+                console.log('Submit button clicked!');
+                // Prevent default form submission
+                e.preventDefault();
+                console.log('Default form submission prevented');
+                // Call our handler directly
+                console.log('🎯 Calling handleCreateUser directly...');
+                console.log('handleCreateUser function:', typeof handleCreateUser);
+                if (typeof handleCreateUser === 'function') {
+                    console.log('✅ handleCreateUser is a function, calling it...');
+                    try {
+                        console.log('🚀 About to call handleCreateUser...');
+                        
+                        // Test simple function call first
+                        console.log('🧪 Testing simple function call...');
+                        const testResult = window.testFunction();
+                        console.log('🧪 Test function result:', testResult);
+                        
+                        // Test alternative function
+                        console.log('🔄 Testing alternative function...');
+                        await window.createUserAlternative(e);
+                        console.log('🔄 Alternative function completed');
+                        
+                        const result = await handleCreateUser(e);
+                        console.log('✅ handleCreateUser completed successfully:', result);
+                    } catch (error) {
+                        console.error('❌ Error calling handleCreateUser:', error);
+                        console.error('❌ Error stack:', error.stack);
+                    }
+                } else {
+                    console.error('❌ handleCreateUser is not a function!', handleCreateUser);
+                }
+            });
+        } else {
+            console.error('Submit button not found!');
+        }
+        
+        // Test form submission directly
+        console.log('🧪 Testing form submission...');
+        const testForm = document.getElementById('user-form');
+        if (testForm) {
+            console.log('✅ Test form found:', testForm);
+        } else {
+            console.error('❌ Test form not found!');
+        }
+        
+        // Test handleCreateUser function availability
+        console.log('🧪 Testing handleCreateUser function...');
+        console.log('handleCreateUser type:', typeof handleCreateUser);
+        console.log('handleCreateUser value:', handleCreateUser);
+        
+    } catch (error) {
+        console.error('❌ Error during initialization:', error);
+    }
 });
 
 // Setup Event Listeners
 function setupEventListeners() {
-    const userForm = document.getElementById('user-form');
-    const searchInput = document.getElementById('userSearch');
-    
-    if (userForm) {
-        userForm.addEventListener('submit', handleCreateUser);
+    try {
+        console.log('Setting up event listeners...');
+        const userForm = document.getElementById('user-form');
+        const searchInput = document.getElementById('userSearch');
+        
+        console.log('User form element:', userForm);
+        console.log('Search input element:', searchInput);
+        
+        if (userForm) {
+            console.log('Adding submit event listener to user form');
+            userForm.addEventListener('submit', (e) => {
+                console.log('🎯 Form submit event triggered!');
+                handleCreateUser(e);
+            });
+        } else {
+            console.error('User form not found!');
+        }
+    } catch (error) {
+        console.error('❌ Error in setupEventListeners:', error);
     }
     
     if (searchInput) {
+        console.log('Adding input event listener to search input');
         searchInput.addEventListener('input', debounce(handleSearch, 300));
+    } else {
+        console.error('Search input not found!');
     }
 }
 
@@ -46,9 +327,16 @@ function setupProfilePictureUpload() {
         e.preventDefault();
         uploadArea.classList.remove('dragover');
         
+        console.log('🎯 File dropped');
         const files = e.dataTransfer.files;
+        console.log('📁 Dropped files:', files);
+        console.log('📊 Number of dropped files:', files.length);
+        
         if (files.length > 0) {
+            console.log('✅ File dropped, calling handleFileSelect');
             handleFileSelect(files[0]);
+        } else {
+            console.log('❌ No files in drop');
         }
     });
     
@@ -61,19 +349,37 @@ function setupProfilePictureUpload() {
     
     // File input change
     fileInput.addEventListener('change', (e) => {
+        console.log('🔄 File input changed');
+        console.log('📁 Files in input:', e.target.files);
+        console.log('📊 Number of files:', e.target.files.length);
+        
         if (e.target.files.length > 0) {
+            console.log('✅ File found, calling handleFileSelect');
             handleFileSelect(e.target.files[0]);
+        } else {
+            console.log('❌ No files selected');
         }
     });
 }
 
 // Handle File Selection
 function handleFileSelect(file) {
+    console.log('=== FILE SELECTION DEBUG ===');
+    console.log('📁 File selected:', file);
+    console.log('📸 File details:');
+    console.log('  - Name:', file.name);
+    console.log('  - Size:', file.size, 'bytes');
+    console.log('  - Type:', file.type);
+    console.log('  - Last Modified:', new Date(file.lastModified));
+    
     // Validate file type
     if (!file.type.startsWith('image/')) {
+        console.log('❌ Invalid file type:', file.type);
         showToast('Please select a valid image file', 'error');
         return;
     }
+    
+    console.log('✅ File validation passed');
     
     // Validate file size (5MB max)
     if (file.size > 5 * 1024 * 1024) {
@@ -180,8 +486,8 @@ function renderUsers() {
             <td>
                 <div class="user-info">
                     <div class="user-avatar">
-                        ${user.profile_picture ? 
-                            `<img src="/uploads/profiles/${user.profile_picture}" alt="${user.username}" />` : 
+                        ${user.PROFILE_PICTURE ? 
+                            `<img src="/${user.PROFILE_PICTURE}" alt="${user.username}" />` : 
                             `<i class="fas fa-user"></i>`
                         }
                     </div>
@@ -219,63 +525,7 @@ function updateStats() {
     if (teacherUsers) teacherUsers.textContent = allUsers.filter(u => u.role === 'teacher').length;
 }
 
-// Handle Create User
-async function handleCreateUser(e) {
-    e.preventDefault();
-    
-    const username = document.getElementById('username').value;
-    const password = document.getElementById('password').value;
-    const role = document.getElementById('role').value;
-    const profilePicture = document.getElementById('profilePicture').files[0];
-    
-    if (!username || !password || !role) {
-        showToast('Please fill in all required fields', 'error');
-        return;
-    }
-    
-    if (password.length < 6) {
-        showToast('Password must be at least 6 characters long', 'error');
-        return;
-    }
-    
-    // Check if username already exists
-    if (allUsers.some(user => user.username === username)) {
-        showToast('Username already exists', 'error');
-        return;
-    }
-    
-    try {
-        showLoading();
-        
-        // Create FormData for file upload
-        const formData = new FormData();
-        formData.append('username', username);
-        formData.append('password', password);
-        formData.append('role', role);
-        if (profilePicture) {
-            formData.append('profilePicture', profilePicture);
-        }
-        
-        const response = await fetch('/api/users', {
-            method: 'POST',
-            body: formData
-        });
-        
-        if (response.ok) {
-            showToast('User created successfully!', 'success');
-            clearForm();
-            await loadUsers();
-        } else {
-            const error = await response.json();
-            showToast(error.message || 'Failed to create user', 'error');
-        }
-    } catch (error) {
-        console.error('Error creating user:', error);
-        showToast('Failed to create user', 'error');
-    } finally {
-        hideLoading();
-    }
-}
+// Handle Create User function moved to top of file
 
 // Clear Form
 function clearForm() {
@@ -319,6 +569,8 @@ async function deleteUser(userId) {
         hideLoading();
     }
 }
+
+// Global assignment already done at top of file
 
 // Edit User (placeholder)
 function editUser(userId) {

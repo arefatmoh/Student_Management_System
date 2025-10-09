@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Profile Picture</title>
+</head>
+<body>
+    <h1>Test Profile Picture Upload</h1>
+    
+    <form id="testForm" enctype="multipart/form-data">
+        <div>
+            <label>Username:</label>
+            <input type="text" id="username" value="testuser" required>
+        </div>
+        <div>
+            <label>Password:</label>
+            <input type="password" id="password" value="test123" required>
+        </div>
+        <div>
+            <label>Role:</label>
+            <select id="role">
+                <option value="teacher">Teacher</option>
+                <option value="admin">Admin</option>
+            </select>
+        </div>
+        <div>
+            <label>Profile Picture:</label>
+            <input type="file" id="profilePicture" accept="image/*">
+        </div>
+        <button type="submit">Create User</button>
+    </form>
+    
+    <div id="result"></div>
+    
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData();
+            formData.append('username', document.getElementById('username').value);
+            formData.append('password', document.getElementById('password').value);
+            formData.append('role', document.getElementById('role').value);
+            
+            const fileInput = document.getElementById('profilePicture');
+            if (fileInput.files[0]) {
+                formData.append('profilePicture', fileInput.files[0]);
+            }
+            
+            try {
+                const response = await fetch('/api/users', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                document.getElementById('result').innerHTML = `
+                    <h3>Result:</h3>
+                    <pre>${JSON.stringify(result, null, 2)}</pre>
+                `;
+            } catch (error) {
+                document.getElementById('result').innerHTML = `
+                    <h3>Error:</h3>
+                    <pre>${error.message}</pre>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>

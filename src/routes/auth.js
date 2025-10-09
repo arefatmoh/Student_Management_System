@@ -39,22 +39,38 @@ router.get('/me', async (req, res) => {
   if (!req.session.user) return res.status(401).json({ message: 'Not logged in' });
   
   try {
+    console.log('=== AUTH /ME DEBUG ===');
+    console.log('Session user ID:', req.session.user.id);
+    
     // Fetch complete user data including profile picture
     const [users] = await getPool().query('SELECT USER_ID, USERNAME, ROLE, PROFILE_PICTURE FROM Users WHERE USER_ID = ?', [req.session.user.id]);
+    console.log('User query result:', users);
+    
     if (users.length > 0) {
       const user = users[0];
-      res.json({
+      console.log('User data from database:', user);
+      console.log('Profile picture value:', user.PROFILE_PICTURE);
+      console.log('Profile picture type:', typeof user.PROFILE_PICTURE);
+      
+      const response = {
         id: user.USER_ID,
         username: user.USERNAME,
         role: user.ROLE,
         PROFILE_PICTURE: user.PROFILE_PICTURE
-      });
+      };
+      
+      console.log('Sending response:', response);
+      console.log('=== END AUTH /ME DEBUG ===');
+      res.json(response);
     } else {
       // Fallback to session data if user not found in database
+      console.log('User not found in database, using session data');
+      console.log('=== END AUTH /ME DEBUG ===');
       res.json(req.session.user);
     }
   } catch (error) {
     console.error('Error fetching user data:', error);
+    console.log('=== END AUTH /ME DEBUG ===');
     // Fallback to session data on error
     res.json(req.session.user);
   }

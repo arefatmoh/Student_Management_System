@@ -7,6 +7,8 @@ async function fetchJson(url, options) {
 async function checkUserRole() {
 	try {
 		const user = await fetchJson('/api/auth/me');
+		console.log('User data received:', user); // Debug log
+		
 		if (user.role === 'admin') {
 			document.getElementById('adminCard').style.display = 'block';
 		}
@@ -17,11 +19,15 @@ async function checkUserRole() {
 		
 		// Update user avatar with profile picture if available
 		const userAvatar = document.querySelector('.user-avatar');
+		console.log('Profile picture data:', user.PROFILE_PICTURE); // Debug log
+		
 		if (user.PROFILE_PICTURE && user.PROFILE_PICTURE.trim() !== '') {
 			// Show profile picture
+			console.log('Setting profile picture:', user.PROFILE_PICTURE); // Debug log
 			userAvatar.innerHTML = `<img src="/${user.PROFILE_PICTURE}" alt="${user.username}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
 		} else {
 			// Show default icon
+			console.log('No profile picture, showing default icon'); // Debug log
 			userAvatar.innerHTML = '<i class="fas fa-user"></i>';
 		}
 	} catch (error) {

@@ -7,6 +7,9 @@ app.use(express.json());
 
 // Serve static files for profile pictures
 app.use('/uploads', express.static('uploads'));
+
+// Serve static files from public directory (for favicon, CSS, JS, etc.)
+app.use(express.static('public'));
 const session = require('express-session');
 const authRouter = require('./routes/auth');
 
