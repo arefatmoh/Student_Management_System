@@ -198,15 +198,11 @@ Building this project taught me so much:
 - **My classmates** for testing and feedback
 - **GitHub** for hosting my code
 
-## 📄 License
-
-This project is open source and available under the [MIT License](LICENSE).
-
 ## 📞 Contact
 
 If you have any questions or want to connect:
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+- GitHub: [@ahmedmohd-dev](https://github.com/ahmedmohd-dev)
+- Email: ahmedmohammedkiar2@gmail.com
 
 ---
 

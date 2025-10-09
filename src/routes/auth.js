@@ -35,9 +35,29 @@ router.post('/logout', (req, res) => {
   });
 });
 
-router.get('/me', (req, res) => {
+router.get('/me', async (req, res) => {
   if (!req.session.user) return res.status(401).json({ message: 'Not logged in' });
-  res.json(req.session.user);
+  
+  try {
+    // Fetch complete user data including profile picture
+    const [users] = await getPool().query('SELECT USER_ID, USERNAME, ROLE, PROFILE_PICTURE FROM Users WHERE USER_ID = ?', [req.session.user.id]);
+    if (users.length > 0) {
+      const user = users[0];
+      res.json({
+        id: user.USER_ID,
+        username: user.USERNAME,
+        role: user.ROLE,
+        PROFILE_PICTURE: user.PROFILE_PICTURE
+      });
+    } else {
+      // Fallback to session data if user not found in database
+      res.json(req.session.user);
+    }
+  } catch (error) {
+    console.error('Error fetching user data:', error);
+    // Fallback to session data on error
+    res.json(req.session.user);
+  }
 });
 
 module.exports = router;

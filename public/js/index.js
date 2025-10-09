@@ -14,6 +14,16 @@ async function checkUserRole() {
 		// Update user info display
 		document.getElementById('userName').textContent = user.username || 'User';
 		document.getElementById('userRole').textContent = user.role === 'admin' ? 'Administrator' : (user.role === 'teacher' ? 'Teacher' : 'User');
+		
+		// Update user avatar with profile picture if available
+		const userAvatar = document.querySelector('.user-avatar');
+		if (user.PROFILE_PICTURE && user.PROFILE_PICTURE.trim() !== '') {
+			// Show profile picture
+			userAvatar.innerHTML = `<img src="/${user.PROFILE_PICTURE}" alt="${user.username}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">`;
+		} else {
+			// Show default icon
+			userAvatar.innerHTML = '<i class="fas fa-user"></i>';
+		}
 	} catch (error) {
 		console.log('Could not check user role:', error);
 		document.getElementById('userName').textContent = 'User';
