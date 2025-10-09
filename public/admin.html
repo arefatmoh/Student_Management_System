@@ -70,7 +70,452 @@
             border-color: var(--primary-300);
             color: var(--primary-700);
         }
-        
+
+        /* Admin Page Specific Styles */
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-6);
+            margin-bottom: var(--space-8);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: var(--space-4);
+            margin-bottom: var(--space-8);
+        }
+
+        .stat-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-500), var(--primary-600));
+        }
+
+        .stat-card.admin::before {
+            background: linear-gradient(90deg, var(--error-500), var(--error-600));
+        }
+
+        .stat-card.teacher::before {
+            background: linear-gradient(90deg, var(--info-500), var(--info-600));
+        }
+
+        .stat-card.total::before {
+            background: linear-gradient(90deg, var(--success-500), var(--success-600));
+        }
+
+        .stat-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-4);
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+        }
+
+        .stat-icon.admin {
+            background: linear-gradient(135deg, var(--error-500), var(--error-600));
+        }
+
+        .stat-icon.teacher {
+            background: linear-gradient(135deg, var(--info-500), var(--info-600));
+        }
+
+        .stat-icon.total {
+            background: linear-gradient(135deg, var(--success-500), var(--success-600));
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--gray-900);
+            margin-bottom: var(--space-1);
+        }
+
+        .stat-label {
+            color: var(--gray-600);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            margin-bottom: var(--space-8);
+        }
+
+        .form-header {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .form-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+        }
+
+        .form-header i {
+            color: var(--primary-600);
+            font-size: 1.25rem;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: var(--space-4);
+            margin-bottom: var(--space-6);
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-2);
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-label {
+            font-weight: 500;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+        }
+
+        .form-input {
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            transition: all var(--transition-fast);
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .form-select {
+            padding: var(--space-3) var(--space-4);
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            background: white;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+        }
+
+        .form-select:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .btn-create {
+            background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+            color: white;
+            border: none;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-md);
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            justify-content: center;
+        }
+
+        .btn-create:hover {
+            background: linear-gradient(135deg, var(--primary-700), var(--primary-800));
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-create:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .table-card {
+            background: white;
+            border-radius: var(--radius-xl);
+            padding: var(--space-6);
+            box-shadow: var(--shadow-md);
+            border: 1px solid var(--gray-200);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--space-6);
+            padding-bottom: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+        }
+
+        .table-header h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--gray-900);
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .table-header i {
+            color: var(--primary-600);
+        }
+
+        .search-box {
+            position: relative;
+            max-width: 300px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4) var(--space-3) 2.5rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            transition: all var(--transition-fast);
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-500);
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .search-icon {
+            position: absolute;
+            left: var(--space-3);
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-400);
+            font-size: 0.875rem;
+        }
+
+        .users-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: var(--space-4);
+        }
+
+        .users-table th {
+            background: var(--gray-50);
+            padding: var(--space-4);
+            text-align: left;
+            font-weight: 600;
+            color: var(--gray-700);
+            font-size: 0.875rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid var(--gray-200);
+        }
+
+        .users-table td {
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+            vertical-align: middle;
+        }
+
+        .users-table tbody tr {
+            transition: all var(--transition-fast);
+        }
+
+        .users-table tbody tr:hover {
+            background: var(--gray-50);
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: var(--space-3);
+        }
+
+        .user-details h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+
+        .user-details p {
+            margin: 0;
+            font-size: 0.875rem;
+            color: var(--gray-600);
+        }
+
+        .role-badge {
+            padding: var(--space-1) var(--space-3);
+            border-radius: var(--radius-full);
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .role-badge.admin {
+            background: var(--error-100);
+            color: var(--error-700);
+        }
+
+        .role-badge.teacher {
+            background: var(--info-100);
+            color: var(--info-700);
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: var(--space-2);
+        }
+
+        .btn-action {
+            padding: var(--space-2) var(--space-3);
+            border: none;
+            border-radius: var(--radius-md);
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-1);
+        }
+
+        .btn-edit {
+            background: var(--info-100);
+            color: var(--info-700);
+        }
+
+        .btn-edit:hover {
+            background: var(--info-200);
+        }
+
+        .btn-delete {
+            background: var(--error-100);
+            color: var(--error-700);
+        }
+
+        .btn-delete:hover {
+            background: var(--error-200);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: var(--space-12) var(--space-6);
+            color: var(--gray-500);
+        }
+
+        .empty-state i {
+            font-size: 3rem;
+            margin-bottom: var(--space-4);
+            color: var(--gray-300);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: var(--space-2);
+            color: var(--gray-600);
+        }
+
+        .empty-state p {
+            font-size: 0.875rem;
+            margin: 0;
+        }
+
+        .loading-state {
+            text-align: center;
+            padding: var(--space-8);
+            color: var(--gray-500);
+        }
+
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--gray-200);
+            border-radius: 50%;
+            border-top-color: var(--primary-600);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .admin-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
         @media (max-width: 768px) {
             .page-header h1 {
                 font-size: 2rem;
@@ -84,6 +529,52 @@
             
             .header-actions {
                 justify-content: center;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .table-header {
+                flex-direction: column;
+                gap: var(--space-4);
+                align-items: stretch;
+            }
+
+            .search-box {
+                max-width: none;
+            }
+
+            .users-table {
+                font-size: 0.875rem;
+            }
+
+            .users-table th,
+            .users-table td {
+                padding: var(--space-3);
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .form-card,
+            .table-card {
+                padding: var(--space-4);
+            }
+
+            .stat-card {
+                padding: var(--space-4);
+            }
+
+            .stat-value {
+                font-size: 2rem;
             }
         }
     </style>
@@ -121,56 +612,459 @@
                     <p>Manage system users, roles, and administrative settings</p>
                 </div>
             </div>
-		<section class="card" style="max-width:520px;">
-			<h3>Create User</h3>
-			<form id="user-form">
-				<input placeholder="Username" id="username" required />
-				<input placeholder="Password" id="password" type="password" required />
-				<select id="role">
-					<option value="admin">admin</option>
-					<option value="teacher">teacher</option>
-				</select>
-				<button type="submit">Create</button>
-			</form>
-		</section>
-		<section>
-			<h3>Users</h3>
-			<table>
-				<thead><tr><th>ID</th><th>Username</th><th>Role</th><th>Actions</th></tr></thead>
-				<tbody id="users-body"></tbody>
-			</table>
-		</section>
-	</main>
+
+            <!-- User Statistics Cards -->
+            <div class="stats-grid">
+                <div class="stat-card total">
+                    <div class="stat-header">
+                        <div class="stat-icon total">
+                            <i class="fas fa-users"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="totalUsers">0</div>
+                    <div class="stat-label">Total Users</div>
+                </div>
+                <div class="stat-card admin">
+                    <div class="stat-header">
+                        <div class="stat-icon admin">
+                            <i class="fas fa-user-shield"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="adminUsers">0</div>
+                    <div class="stat-label">Administrators</div>
+                </div>
+                <div class="stat-card teacher">
+                    <div class="stat-header">
+                        <div class="stat-icon teacher">
+                            <i class="fas fa-chalkboard-teacher"></i>
+                        </div>
+                    </div>
+                    <div class="stat-value" id="teacherUsers">0</div>
+                    <div class="stat-label">Teachers</div>
+                </div>
+            </div>
+
+            <!-- Admin Grid Layout -->
+            <div class="admin-grid">
+                <!-- Create User Form -->
+                <div class="form-card">
+                    <div class="form-header">
+                        <i class="fas fa-user-plus"></i>
+                        <h3>Create New User</h3>
+                    </div>
+                    <form id="user-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label class="form-label" for="username">Username</label>
+                                <input 
+                                    type="text" 
+                                    id="username" 
+                                    class="form-input" 
+                                    placeholder="Enter username" 
+                                    required 
+                                />
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="password">Password</label>
+                                <input 
+                                    type="password" 
+                                    id="password" 
+                                    class="form-input" 
+                                    placeholder="Enter password" 
+                                    required 
+                                />
+                            </div>
+                            <div class="form-group full-width">
+                                <label class="form-label" for="role">Role</label>
+                                <select id="role" class="form-select" required>
+                                    <option value="">Select a role</option>
+                                    <option value="admin">Administrator</option>
+                                    <option value="teacher">Teacher</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-create" id="createBtn">
+                            <i class="fas fa-plus"></i>
+                            Create User
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="form-card">
+                    <div class="form-header">
+                        <i class="fas fa-bolt"></i>
+                        <h3>Quick Actions</h3>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: var(--space-4);">
+                        <button class="btn-create" onclick="exportUsers()" style="background: linear-gradient(135deg, var(--success-600), var(--success-700));">
+                            <i class="fas fa-download"></i>
+                            Export Users
+                        </button>
+                        <button class="btn-create" onclick="refreshUsers()" style="background: linear-gradient(135deg, var(--info-600), var(--info-700));">
+                            <i class="fas fa-sync-alt"></i>
+                            Refresh Data
+                        </button>
+                        <button class="btn-create" onclick="showUserGuide()" style="background: linear-gradient(135deg, var(--warning-600), var(--warning-700));">
+                            <i class="fas fa-question-circle"></i>
+                            User Guide
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Users Table -->
+            <div class="table-card">
+                <div class="table-header">
+                    <h3>
+                        <i class="fas fa-users"></i>
+                        System Users
+                    </h3>
+                    <div class="search-box">
+                        <i class="fas fa-search search-icon"></i>
+                        <input 
+                            type="text" 
+                            class="search-input" 
+                            id="userSearch" 
+                            placeholder="Search users..." 
+                        />
+                    </div>
+                </div>
+                
+                <div id="usersTableContainer">
+                    <div class="loading-state" id="loadingState">
+                        <div class="loading-spinner"></div>
+                        <p>Loading users...</p>
+                    </div>
+                    
+                    <table class="users-table" id="usersTable" style="display: none;">
+                        <thead>
+                            <tr>
+                                <th>User</th>
+                                <th>Role</th>
+                                <th>Created</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="users-body"></tbody>
+                    </table>
+                    
+                    <div class="empty-state" id="emptyState" style="display: none;">
+                        <i class="fas fa-users"></i>
+                        <h3>No users found</h3>
+                        <p>Create your first user to get started</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
 	<script>
-		ensureAuth();
-		async function loadUsers(){
-			const list = await apiFetch('/api/users');
-			const body = document.getElementById('users-body');
-			body.innerHTML = '';
-			for(const u of list){
-				const tr = document.createElement('tr');
-				tr.innerHTML = `<td>${u.USER_ID}</td><td>${u.USERNAME}</td><td>${u.ROLE}</td><td><button data-id="${u.USER_ID}" class="del danger">Delete</button></td>`;
-				body.appendChild(tr);
-			}
-			body.querySelectorAll('.del').forEach(btn=>btn.addEventListener('click', async (e)=>{
-				const id = e.target.getAttribute('data-id');
-				if(!confirm('Delete this user?')) return;
-				await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
-				window.showToast('Deleted');
-				loadUsers();
-			}));
-		}
-		document.getElementById('user-form').addEventListener('submit', async (e)=>{
-			e.preventDefault();
-			const payload = { username: username.value, password: password.value, role: role.value };
-			try{
-				await apiFetch('/api/users', { method: 'POST', body: JSON.stringify(payload) });
-				window.showToast('User created');
-				username.value=''; password.value='';
-				loadUsers();
-			}catch(err){ window.showToast(err.message || 'Error'); }
+		// Global variables
+		let allUsers = [];
+		let filteredUsers = [];
+
+		// Initialize page
+		document.addEventListener('DOMContentLoaded', async () => {
+			ensureAuth();
+			await loadUsers();
+			setupEventListeners();
 		});
-		loadUsers();
+
+		// Setup event listeners
+		function setupEventListeners() {
+			// Form submission
+			document.getElementById('user-form').addEventListener('submit', handleCreateUser);
+			
+			// Search functionality
+			document.getElementById('userSearch').addEventListener('input', debounce(handleSearch, 300));
+		}
+
+		// Load users with enhanced UI
+		async function loadUsers() {
+			try {
+				showLoading();
+				const list = await apiFetch('/api/users');
+				allUsers = list;
+				filteredUsers = [...list];
+				renderUsers();
+				updateStats();
+				hideLoading();
+			} catch (error) {
+				console.error('Error loading users:', error);
+				showError('Failed to load users');
+				hideLoading();
+			}
+		}
+
+		// Render users table
+		function renderUsers() {
+			const body = document.getElementById('users-body');
+			const table = document.getElementById('usersTable');
+			const emptyState = document.getElementById('emptyState');
+			
+			body.innerHTML = '';
+			
+			if (filteredUsers.length === 0) {
+				table.style.display = 'none';
+				emptyState.style.display = 'block';
+				return;
+			}
+			
+			table.style.display = 'table';
+			emptyState.style.display = 'none';
+			
+			filteredUsers.forEach(user => {
+				const tr = document.createElement('tr');
+				tr.innerHTML = `
+					<td>
+						<div class="user-info">
+							<div class="user-avatar">${user.USERNAME.charAt(0).toUpperCase()}</div>
+							<div class="user-details">
+								<h4>${user.USERNAME}</h4>
+								<p>ID: ${user.USER_ID}</p>
+							</div>
+						</div>
+					</td>
+					<td>
+						<span class="role-badge ${user.ROLE}">${user.ROLE}</span>
+					</td>
+					<td>
+						<span style="color: var(--gray-600); font-size: 0.875rem;">
+							${new Date().toLocaleDateString()}
+						</span>
+					</td>
+					<td>
+						<div class="action-buttons">
+							<button class="btn-action btn-edit" onclick="editUser(${user.USER_ID})" title="Edit User">
+								<i class="fas fa-edit"></i>
+								Edit
+							</button>
+							<button class="btn-action btn-delete" onclick="deleteUser(${user.USER_ID})" title="Delete User">
+								<i class="fas fa-trash"></i>
+								Delete
+							</button>
+						</div>
+					</td>
+				`;
+				body.appendChild(tr);
+			});
+		}
+
+		// Update statistics
+		function updateStats() {
+			const totalUsers = allUsers.length;
+			const adminUsers = allUsers.filter(u => u.ROLE === 'admin').length;
+			const teacherUsers = allUsers.filter(u => u.ROLE === 'teacher').length;
+			
+			document.getElementById('totalUsers').textContent = totalUsers;
+			document.getElementById('adminUsers').textContent = adminUsers;
+			document.getElementById('teacherUsers').textContent = teacherUsers;
+		}
+
+		// Handle user creation
+		async function handleCreateUser(e) {
+			e.preventDefault();
+			
+			const username = document.getElementById('username').value.trim();
+			const password = document.getElementById('password').value;
+			const role = document.getElementById('role').value;
+			const createBtn = document.getElementById('createBtn');
+			
+			// Validation
+			if (!username || !password || !role) {
+				showToast('Please fill in all fields', 'error');
+				return;
+			}
+			
+			if (password.length < 6) {
+				showToast('Password must be at least 6 characters', 'error');
+				return;
+			}
+			
+			// Check if username already exists
+			if (allUsers.some(u => u.USERNAME.toLowerCase() === username.toLowerCase())) {
+				showToast('Username already exists', 'error');
+				return;
+			}
+			
+			try {
+				createBtn.disabled = true;
+				createBtn.innerHTML = '<div class="loading-spinner"></div> Creating...';
+				
+				const payload = { username, password, role };
+				await apiFetch('/api/users', { 
+					method: 'POST', 
+					body: JSON.stringify(payload),
+					headers: { 'Content-Type': 'application/json' }
+				});
+				
+				showToast('User created successfully!', 'success');
+				clearForm();
+				await loadUsers();
+			} catch (error) {
+				console.error('Error creating user:', error);
+				showToast(error.message || 'Failed to create user', 'error');
+			} finally {
+				createBtn.disabled = false;
+				createBtn.innerHTML = '<i class="fas fa-plus"></i> Create User';
+			}
+		}
+
+		// Clear form
+		function clearForm() {
+			document.getElementById('username').value = '';
+			document.getElementById('password').value = '';
+			document.getElementById('role').value = '';
+		}
+
+		// Handle search
+		function handleSearch(e) {
+			const query = e.target.value.toLowerCase().trim();
+			
+			if (!query) {
+				filteredUsers = [...allUsers];
+			} else {
+				filteredUsers = allUsers.filter(user => 
+					user.USERNAME.toLowerCase().includes(query) ||
+					user.ROLE.toLowerCase().includes(query) ||
+					user.USER_ID.toString().includes(query)
+				);
+			}
+			
+			renderUsers();
+		}
+
+		// Delete user
+		async function deleteUser(userId) {
+			const user = allUsers.find(u => u.USER_ID === userId);
+			if (!user) return;
+			
+			if (!confirm(`Are you sure you want to delete user "${user.USERNAME}"? This action cannot be undone.`)) {
+				return;
+			}
+			
+			try {
+				await apiFetch(`/api/users/${userId}`, { method: 'DELETE' });
+				showToast('User deleted successfully', 'success');
+				await loadUsers();
+			} catch (error) {
+				console.error('Error deleting user:', error);
+				showToast('Failed to delete user', 'error');
+			}
+		}
+
+		// Edit user (placeholder for future implementation)
+		function editUser(userId) {
+			showToast('Edit functionality coming soon!', 'info');
+		}
+
+		// Export users
+		function exportUsers() {
+			try {
+				const csvContent = generateUsersCSV(allUsers);
+				downloadCSV(csvContent, 'users.csv');
+				showToast('Users exported successfully', 'success');
+			} catch (error) {
+				console.error('Error exporting users:', error);
+				showToast('Failed to export users', 'error');
+			}
+		}
+
+		// Generate CSV content
+		function generateUsersCSV(users) {
+			const headers = ['ID', 'Username', 'Role', 'Created Date'];
+			const rows = users.map(user => [
+				user.USER_ID,
+				user.USERNAME,
+				user.ROLE,
+				new Date().toLocaleDateString()
+			]);
+			
+			return [headers, ...rows].map(row => row.join(',')).join('\n');
+		}
+
+		// Download CSV
+		function downloadCSV(content, filename) {
+			const blob = new Blob([content], { type: 'text/csv' });
+			const url = window.URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = filename;
+			document.body.appendChild(a);
+			a.click();
+			document.body.removeChild(a);
+			window.URL.revokeObjectURL(url);
+		}
+
+		// Refresh users
+		async function refreshUsers() {
+			await loadUsers();
+			showToast('Data refreshed', 'success');
+		}
+
+		// Show user guide
+		function showUserGuide() {
+			showToast('User guide coming soon!', 'info');
+		}
+
+		// UI Helper functions
+		function showLoading() {
+			document.getElementById('loadingState').style.display = 'block';
+			document.getElementById('usersTable').style.display = 'none';
+			document.getElementById('emptyState').style.display = 'none';
+		}
+
+		function hideLoading() {
+			document.getElementById('loadingState').style.display = 'none';
+		}
+
+		function showError(message) {
+			document.getElementById('loadingState').innerHTML = `
+				<i class="fas fa-exclamation-triangle" style="color: var(--error-500); font-size: 2rem; margin-bottom: var(--space-4);"></i>
+				<p style="color: var(--error-600);">${message}</p>
+			`;
+		}
+
+		// Debounce function
+		function debounce(func, wait) {
+			let timeout;
+			return function executedFunction(...args) {
+				const later = () => {
+					clearTimeout(timeout);
+					func(...args);
+				};
+				clearTimeout(timeout);
+				timeout = setTimeout(later, wait);
+			};
+		}
+
+		// Enhanced toast function
+		function showToast(message, type = 'info') {
+			if (window.showToast) {
+				window.showToast(message);
+			} else {
+				// Fallback toast implementation
+				const toast = document.createElement('div');
+				toast.style.cssText = `
+					position: fixed;
+					top: 20px;
+					right: 20px;
+					background: ${type === 'error' ? 'var(--error-500)' : type === 'success' ? 'var(--success-500)' : 'var(--info-500)'};
+					color: white;
+					padding: var(--space-3) var(--space-4);
+					border-radius: var(--radius-md);
+					box-shadow: var(--shadow-lg);
+					z-index: 1000;
+					font-weight: 500;
+				`;
+				toast.textContent = message;
+				document.body.appendChild(toast);
+				
+				setTimeout(() => {
+					toast.remove();
+				}, 3000);
+			}
+		}
 	</script>
 </body>
 </html>
