@@ -94,34 +94,42 @@ function renderTableView(students) {
                         Actions
                     </button>
                     <div class="action-dropdown" id="menu-${student.STUDENT_ID}">
-                        <a href="#" class="action-item" onclick="editStudent(${student.STUDENT_ID})">
-                            <i class="fas fa-edit"></i>
-                            Edit Student
-                        </a>
-                        <a href="/fees.html?student=${student.STUDENT_ID}" class="action-item">
-                            <i class="fas fa-dollar-sign"></i>
-                            Add Fee
-                        </a>
-                        <a href="/fees.html?student=${student.STUDENT_ID}" class="action-item">
-                            <i class="fas fa-list"></i>
-                            View Fees
-                        </a>
-                        <a href="/attendance.html?student=${student.STUDENT_ID}" class="action-item">
-                            <i class="fas fa-calendar-check"></i>
-                            Mark Attendance
-                        </a>
-                        <a href="/attendance.html?student=${student.STUDENT_ID}" class="action-item">
-                            <i class="fas fa-chart-line"></i>
-                            View Attendance
-                        </a>
-                        <a href="/reports.html?student=${student.STUDENT_ID}" class="action-item">
-                            <i class="fas fa-file-alt"></i>
-                            Student Summary
-                        </a>
-                        <a href="#" class="action-item danger" onclick="deleteStudent(${student.STUDENT_ID})">
-                            <i class="fas fa-trash"></i>
-                            Delete Student
-                        </a>
+                        <div class="action-header">
+                            <h4>Actions for ${student.NAME}</h4>
+                            <button class="action-close" onclick="closeActionMenu(${student.STUDENT_ID})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        <div class="action-items">
+                            <a href="#" class="action-item" onclick="editStudent(${student.STUDENT_ID}); closeActionMenu(${student.STUDENT_ID});">
+                                <i class="fas fa-edit"></i>
+                                Edit Student
+                            </a>
+                            <a href="/fees.html?student=${student.STUDENT_ID}" class="action-item">
+                                <i class="fas fa-dollar-sign"></i>
+                                Add Fee
+                            </a>
+                            <a href="/fees.html?student=${student.STUDENT_ID}" class="action-item">
+                                <i class="fas fa-list"></i>
+                                View Fees
+                            </a>
+                            <a href="/attendance.html?student=${student.STUDENT_ID}" class="action-item">
+                                <i class="fas fa-calendar-check"></i>
+                                Mark Attendance
+                            </a>
+                            <a href="/attendance.html?student=${student.STUDENT_ID}" class="action-item">
+                                <i class="fas fa-chart-line"></i>
+                                View Attendance
+                            </a>
+                            <a href="/reports.html?student=${student.STUDENT_ID}" class="action-item">
+                                <i class="fas fa-file-alt"></i>
+                                Student Summary
+                            </a>
+                            <a href="#" class="action-item danger" onclick="deleteStudent(${student.STUDENT_ID}); closeActionMenu(${student.STUDENT_ID});">
+                                <i class="fas fa-trash"></i>
+                                Delete Student
+                            </a>
+                        </div>
                     </div>
                 </div>
             </td>
@@ -216,14 +224,40 @@ function toggleActionMenu(studentId) {
     // Toggle current menu
     const menu = document.getElementById(`menu-${studentId}`);
     menu.classList.toggle('show');
+    
+    // Prevent body scroll when menu is open
+    if (menu.classList.contains('show')) {
+        document.body.style.overflow = 'hidden';
+    } else {
+        document.body.style.overflow = '';
+    }
+}
+
+function closeActionMenu(studentId) {
+    const menu = document.getElementById(`menu-${studentId}`);
+    if (menu) {
+        menu.classList.remove('show');
+        document.body.style.overflow = '';
+    }
 }
 
 // Close action menus when clicking outside
 document.addEventListener('click', (e) => {
-    if (!e.target.closest('.action-menu')) {
+    if (!e.target.closest('.action-menu') && !e.target.closest('.action-dropdown')) {
         document.querySelectorAll('.action-dropdown').forEach(menu => {
             menu.classList.remove('show');
         });
+        document.body.style.overflow = '';
+    }
+});
+
+// Close action menus when pressing Escape key
+document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.action-dropdown').forEach(menu => {
+            menu.classList.remove('show');
+        });
+        document.body.style.overflow = '';
     }
 });
 

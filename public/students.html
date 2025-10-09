@@ -144,22 +144,71 @@
         }
         
         .action-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             background: white;
             border: 1px solid var(--gray-200);
             border-radius: var(--radius-lg);
-            box-shadow: var(--shadow-lg);
-            z-index: 100;
-            min-width: 200px;
+            box-shadow: var(--shadow-xl);
+            z-index: 1000;
+            min-width: 250px;
+            max-width: 90vw;
             display: none;
             overflow: hidden;
+        }
+        
+        .action-dropdown::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: -1;
         }
         
         .action-dropdown.show {
             display: block;
             animation: slideDown var(--transition-fast);
+        }
+        
+        .action-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: var(--space-4);
+            border-bottom: 1px solid var(--gray-200);
+            background: var(--gray-50);
+        }
+        
+        .action-header h4 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--gray-900);
+        }
+        
+        .action-close {
+            background: none;
+            border: none;
+            color: var(--gray-500);
+            cursor: pointer;
+            padding: var(--space-1);
+            border-radius: var(--radius-sm);
+            transition: all var(--transition-fast);
+        }
+        
+        .action-close:hover {
+            background: var(--gray-200);
+            color: var(--gray-700);
+        }
+        
+        .action-items {
+            max-height: 60vh;
+            overflow-y: auto;
         }
         
         .action-item {
