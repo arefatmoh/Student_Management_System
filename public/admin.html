@@ -68,6 +68,200 @@
             color: var(--primary-700);
             font-weight: 600;
         }
+        
+        /* Profile Picture Upload Styles */
+        .profile-picture-section {
+            margin-top: var(--space-6);
+            padding-top: var(--space-6);
+            border-top: 1px solid var(--gray-200);
+        }
+        
+        .profile-upload-area {
+            border: 2px dashed var(--gray-300);
+            border-radius: var(--radius-xl);
+            padding: var(--space-8);
+            text-align: center;
+            transition: all var(--transition-normal);
+            background: var(--gray-50);
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .profile-upload-area:hover {
+            border-color: var(--accent-red-400);
+            background: var(--accent-red-50);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.15);
+        }
+        
+        .profile-upload-area.dragover {
+            border-color: var(--accent-red-500);
+            background: var(--accent-red-100);
+            transform: scale(1.02);
+        }
+        
+        .upload-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .upload-icon {
+            font-size: 3rem;
+            color: var(--accent-red-500);
+            margin-bottom: var(--space-2);
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .upload-text h4 {
+            color: var(--gray-800);
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0 0 var(--space-2) 0;
+        }
+        
+        .upload-text p {
+            color: var(--gray-600);
+            font-size: 1rem;
+            margin: 0 0 var(--space-2) 0;
+        }
+        
+        .upload-hint {
+            color: var(--gray-500);
+            font-size: 0.875rem;
+            font-style: italic;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, var(--accent-red-500), var(--accent-red-600));
+            color: white;
+            border: none;
+            padding: var(--space-3) var(--space-6);
+            border-radius: var(--radius-lg);
+            font-weight: 600;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: var(--space-2);
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
+        }
+        
+        .upload-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(239, 68, 68, 0.4);
+            background: linear-gradient(135deg, var(--accent-red-600), var(--accent-red-700));
+        }
+        
+        .image-preview {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-4);
+        }
+        
+        .preview-container {
+            position: relative;
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+            border: 4px solid white;
+        }
+        
+        .preview-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: all var(--transition-normal);
+        }
+        
+        .preview-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-3);
+            opacity: 0;
+            transition: all var(--transition-fast);
+        }
+        
+        .preview-container:hover .preview-overlay {
+            opacity: 1;
+        }
+        
+        .preview-remove,
+        .preview-change {
+            background: rgba(255, 255, 255, 0.9);
+            border: none;
+            border-radius: 50%;
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all var(--transition-fast);
+            color: var(--gray-700);
+        }
+        
+        .preview-remove:hover {
+            background: var(--error-500);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .preview-change:hover {
+            background: var(--accent-red-500);
+            color: white;
+            transform: scale(1.1);
+        }
+        
+        .preview-info {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: var(--space-1);
+            color: var(--gray-600);
+            font-size: 0.875rem;
+        }
+        
+        .preview-info span:first-child {
+            font-weight: 600;
+            color: var(--gray-800);
+        }
+        
+        /* User Avatar with Profile Picture */
+        .user-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--gray-200);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 2px solid var(--gray-300);
+        }
 
         /* Admin Page Specific Styles */
         .admin-grid {
@@ -578,6 +772,7 @@
     </style>
     <script src="/js/util.js"></script>
     <script src="/js/auth-guard.js"></script>
+    <script src="/js/admin.js"></script>
 </head>
 <body class="admin">
     <header class="admin">
@@ -679,6 +874,44 @@
                                     <option value="admin">Administrator</option>
                                     <option value="teacher">Teacher</option>
                                 </select>
+                            </div>
+                        </div>
+                        
+                        <!-- Profile Picture Upload Section -->
+                        <div class="profile-picture-section">
+                            <label class="form-label">Profile Picture</label>
+                            <div class="profile-upload-area" id="profileUploadArea">
+                                <div class="upload-content" id="uploadContent">
+                                    <div class="upload-icon">
+                                        <i class="fas fa-cloud-upload-alt"></i>
+                                    </div>
+                                    <div class="upload-text">
+                                        <h4>Upload Profile Picture</h4>
+                                        <p>Drag & drop an image here or click to browse</p>
+                                        <span class="upload-hint">Supports: JPG, PNG, GIF (Max 5MB)</span>
+                                    </div>
+                                    <input type="file" id="profilePicture" accept="image/*" style="display: none;" />
+                                    <button type="button" class="upload-btn" onclick="document.getElementById('profilePicture').click()">
+                                        <i class="fas fa-plus"></i> Choose File
+                                    </button>
+                                </div>
+                                <div class="image-preview" id="imagePreview" style="display: none;">
+                                    <div class="preview-container">
+                                        <img id="previewImg" alt="Profile Preview" />
+                                        <div class="preview-overlay">
+                                            <button type="button" class="preview-remove" onclick="removeProfilePicture()">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                            <button type="button" class="preview-change" onclick="document.getElementById('profilePicture').click()">
+                                                <i class="fas fa-edit"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                    <div class="preview-info">
+                                        <span id="fileName"></span>
+                                        <span id="fileSize"></span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                         <button type="submit" class="btn-create" id="createBtn">

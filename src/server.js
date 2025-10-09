@@ -4,6 +4,9 @@ dotenv.config();
 
 const app = express();
 app.use(express.json());
+
+// Serve static files for profile pictures
+app.use('/uploads', express.static('uploads'));
 const session = require('express-session');
 const authRouter = require('./routes/auth');
 
