@@ -285,6 +285,39 @@ header.import-export {
     border-color: var(--accent-teal-600);
 }
 
+/* Page-Specific Title Colors */
+.students .page-title {
+    color: var(--accent-green-700);
+}
+
+.classes .page-title {
+    color: var(--purple-700);
+}
+
+.attendance .page-title {
+    color: var(--accent-orange-700);
+}
+
+.fees .page-title {
+    color: var(--accent-emerald-700);
+}
+
+.marks .page-title {
+    color: var(--accent-indigo-700);
+}
+
+.reports .page-title {
+    color: var(--accent-amber-700);
+}
+
+.admin .page-title {
+    color: var(--accent-red-700);
+}
+
+.import-export .page-title {
+    color: var(--accent-teal-700);
+}
+
 header h1 {
     color: white;
     font-size: 1.75rem;
